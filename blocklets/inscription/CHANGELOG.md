@@ -1,3 +1,7 @@
+## 0.0.6 (July 28, 2023)
+
+- chore: adjust github actions
+
 ## 0.0.5 (July 28, 2023)
 
 - chore: adjust did system
