@@ -1,0 +1,29 @@
+{
+  "name": "inscription-studio",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "bump-version": "zx scripts/bump-version.mjs --quiet",
+    "update:deps": "taze -w -r && pnpm install",
+    "preinstall": "npx only-allow pnpm",
+    "prepare": "husky install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@arcblock/eslint-config": "0.2.2",
+    "bumpp": "^7.2.0",
+    "eslint": "^8.45.0",
+    "husky": "^8.0.3",
+    "prettier": "^2.8.8",
+    "prompts": "^2.4.2",
+    "zx": "^7.2.3"
+  },
+  "resolutions": {
+    "@abtnode/client": "1.16.14-beta-3127f514",
+    "@abtnode/constant": "1.16.14-beta-3127f514",
+    "@blocklet/constant": "1.16.14-beta-3127f514",
+    "@blocklet/sdk": "^1.16.14-beta-3127f514"
+  }
+}

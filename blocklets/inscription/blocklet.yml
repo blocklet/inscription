@@ -1,0 +1,91 @@
+name: inscription
+version: 0.0.1
+title: Inscription
+description: A blocklet that lets you write inscriptions on chains.
+keywords:
+  - blocklet
+  - react
+group: dapp
+did: z8iZwU2jWphgpz5Uw2KsDmHyGQ1rUft8tc8G3
+main: api/index.js
+author:
+  name: YongZhuo Liang
+  email: yongchao@arcblock.io
+repository:
+  type: git
+  url: git+https://github.com/blocklet/inscription.git
+specVersion: 1.2.8
+logo: logo.png
+files:
+  - dist
+  - logo.png
+  - migration/*.js
+  - README.md
+  - blocklet.md
+  - screenshots
+  - api/hooks/pre-start.js
+  - uploads
+interfaces:
+  - type: web
+    name: publicUrl
+    path: /
+    prefix: "*"
+    port: BLOCKLET_PORT
+    protocol: tcp
+    services:
+      - name: auth
+        config:
+          blockUnauthenticated: false
+          ignoreUrls:
+            - /
+            - /api/**
+            - /manifest.json
+          whoCanAccess: invited
+          profileFields:
+            - fullName
+            - email
+            - avatar
+          allowSwitchProfile: true
+          blockUnauthorized: false
+community: ""
+documentation: ""
+homepage: ""
+license: ""
+payment:
+  price: []
+  share: []
+timeout:
+  start: 60
+requirements:
+  server: ">=1.16.0"
+  os: "*"
+  cpu: "*"
+scripts:
+  preStart: node api/hooks/pre-start.js
+  dev: npm run start
+environments:
+  - name: CHAIN_HOST
+    description: What's endpoint of the chain?
+    required: true
+    default: https://main.abtnetwork.io/api/
+    secure: false
+    shared: true
+capabilities:
+  clusterMode: false
+  component: true
+  navigation: true
+  didSpace: required
+  serverless: true
+screenshots:
+  - 0-collection.png
+  - 1-nft.png
+  - 2-mint.png
+navigation:
+  - id: Home
+    title:
+      en: Home
+      zh: 首页
+    link: /
+    section:
+      - header
+components: []

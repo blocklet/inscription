@@ -1,0 +1,99 @@
+[
+  {
+    "networkName": "mainnet",
+    "chainName": "Ethereum Mainnet",
+    "chainId": "1",
+    "symbol": "ETH",
+    "defaultRPC": "https://mainnet.infura.io/v3/2ddf4a827a12475c8eb172b51d567584",
+    "explorer": "https://etherscan.io",
+    "icon": "eth",
+    "enable": true,
+    "decimal": 18,
+    "isTest": false
+  },
+  {
+    "networkName": "goerli",
+    "chainName": "Goerli",
+    "chainId": "5",
+    "symbol": "ETH (Goerli)",
+    "defaultRPC": "https://goerli.infura.io/v3/2ddf4a827a12475c8eb172b51d567584",
+    "explorer": "https://goerli.etherscan.io",
+    "icon": "eth",
+    "enable": true,
+    "decimal": 18,
+    "isTest": true
+  },
+  {
+    "networkName": "bsc-test",
+    "chainName": "BNB (Binance Smart Chain)",
+    "chainId": "97",
+    "symbol": "tBNB",
+    "defaultRPC": "https://bsc.getblock.io/6e19d7c6-5532-4fd8-9e7b-12e9b194f909/testnet",
+    "explorer": "https://testnet.bscscan.com",
+    "icon": "bnb",
+    "enable": true,
+    "decimal": 18,
+    "isTest": true
+  },
+  {
+    "networkName": "optimism-goerli",
+    "chainName": "Optimism Goerli",
+    "chainId": "420",
+    "symbol": "ETH (Optimism Goerli)",
+    "defaultRPC": "https://optimism-goerli.infura.io/v3/2ddf4a827a12475c8eb172b51d567584",
+    "explorer": "https://goerli-optimism.etherscan.io",
+    "icon": "optimism",
+    "enable": false,
+    "decimal": 18,
+    "isTest": true
+  },
+  {
+    "networkName": "base-mainnet",
+    "chainName": "Base Mainnet",
+    "chainId": "8453",
+    "symbol": "ETH",
+    "defaultRPC": "https://developer-access-mainnet.base.org",
+    "explorer": "https://basescan.org",
+    "icon": "base",
+    "enable": true,
+    "decimal": 18,
+    "isTest": false
+  },
+  {
+    "networkName": "localhost",
+    "chainName": "Localhost",
+    "chainId": "31337",
+    "symbol": "ETH (Localhost)",
+    "defaultRPC": "http://localhost:8545",
+    "explorer": "http://localhost:8545",
+    "icon": "eth",
+    "enable": true,
+    "decimal": 18,
+    "isTest": true,
+    "local": true
+  },
+  {
+    "networkName": "base-goerli",
+    "chainName": "Base Goerli",
+    "chainId": "84531",
+    "symbol": "ETH (Base Goerli)",
+    "defaultRPC": "https://goerli.base.org",
+    "explorer": "https://goerli.basescan.org",
+    "icon": "base",
+    "enable": true,
+    "decimal": 18,
+    "isTest": true
+  },
+  {
+    "networkName": "sepolia",
+    "chainName": "Sepolia",
+    "chainId": "11155111",
+    "symbol": "ETH (Sepolia)",
+    "defaultRPC": "https://sepolia.infura.io/v3/2ddf4a827a12475c8eb172b51d567584",
+    "explorer": "https://sepolia.etherscan.io",
+    "icon": "eth",
+    "enable": false,
+    "decimal": 18,
+    "isTest": true
+  }
+]

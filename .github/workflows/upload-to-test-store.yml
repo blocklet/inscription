@@ -1,0 +1,69 @@
+name: "Upload To Test Store"
+
+env:
+  NODE_OPTIONS: "--max_old_space_size=6144"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  check-version:
+    name: Check version by local workflow
+    uses: ./.github/workflows/version-check.yml
+
+  upload:
+    if: "!contains(toJSON(github.event.commits.*.message) , '[skip ci]')"
+    name: Upload to test store
+    needs: check-version
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dir: ${{ fromJSON(needs.check-version.outputs.folders) }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: latest
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+          cache: "pnpm"
+
+      - run: npm add -g @antfu/ni
+      - run: nci
+
+      - name: Prepare @blocklet/cli deps
+        run: yarn global add @blocklet/cli@beta
+        shell: bash
+
+      - name: Publish to NPM
+        if: "contains(matrix.dir , 'packages/')"
+        run: |
+          npm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}"
+          VERSION=$(cat version | awk '{$1=$1;print}')
+          echo "publish version ${VERSION}"
+          pnpm -r publish --access public --no-git-checks
+
+      - name: Upload to test store
+        uses: blocklet/action-workflow@v1
+        if: "contains(matrix.dir , 'blocklets/')"
+        env:
+          COMPONENT_STORE_URL: ${{ secrets.STORE_ENDPOINT_TEST }}
+        with:
+          skip-deps: true
+          skip-upload: false
+          skip-deploy: true
+          skip-release: true
+          bundle-command: pnpm run bundle
+          working-directory: ${{ matrix.dir }}
+          store-endpoint: ${{ secrets.STORE_ENDPOINT_TEST }}
+          store-access-token: ${{ secrets.STORE_ACCESS_TOKEN_TEST }}
+          slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
