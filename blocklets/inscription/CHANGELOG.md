@@ -1,3 +1,7 @@
+## 0.0.4 (July 27, 2023)
+
+- chore: remove did spaces env
+
 ## 0.0.3 (July 27, 2023)
 
 - fix: replace logo again

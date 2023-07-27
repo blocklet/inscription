@@ -1,5 +1,5 @@
 name: inscription
-version: 0.0.3
+version: 0.0.4
 title: Inscription
 description: A blocklet that lets you write inscriptions on chains.
 keywords:
@@ -9,7 +9,7 @@ group: dapp
 did: z8iZwU2jWphgpz5Uw2KsDmHyGQ1rUft8tc8G3
 main: api/index.js
 author:
-  name: YongZhuo Liang
+  name: Yongzhuo Liang
   email: yongchao@arcblock.io
 repository:
   type: git
@@ -74,7 +74,6 @@ capabilities:
   clusterMode: false
   component: true
   navigation: true
-  didSpace: required
   serverless: true
 screenshots:
   - 0-collection.png
