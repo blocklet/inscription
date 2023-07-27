@@ -4,6 +4,10 @@ This project was bootstrapped with [Create Blocklet](https://github.com/blocklet
 
 This blocklet is a dapp project, which means this is a full-stack application. It's contained both `server` and `client` code.
 
+## Launch on Blocklet Server
+
+[![Launch on Blocklet Server](https://assets.arcblock.io/icons/launch_on_blocklet_server.svg)](https://install.arcblock.io/launch?action=blocklet-install&meta_url=https%3A%2F%2Fgithub.com%2Fblocklet%2Finscription%2Freleases%2Fdownload%2Fv0.0.6%2Fblocklet.json)
+
 ## File Structure
 
 - public/ - static files
