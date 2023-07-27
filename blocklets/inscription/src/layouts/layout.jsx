@@ -6,7 +6,7 @@ import { styled } from '@arcblock/ux/lib/Theme';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import { Outlet } from 'react-router-dom';
-import ConnectButton from '@arcblock/did-connect/lib/Button';
+// import ConnectButton from '@arcblock/did-connect/lib/Button';
 import { useSessionContext } from '../contexts/session';
 
 function Layout({ children }) {
@@ -14,7 +14,7 @@ function Layout({ children }) {
 
   useEffect(() => {
     if (!session.user) {
-      session.login();
+      // session.login();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.user]);
@@ -23,7 +23,10 @@ function Layout({ children }) {
     <Root>
       <Header className="layout-header" maxWidth={false} />
       <Container className="layout-container">
-        {session.user ? (
+        <Box className="h-full" pt={2}>
+          {children || <Outlet />}
+        </Box>
+        {/* {session.user || true ? (
           <Box className="h-full" pt={2}>
             {children || <Outlet />}
           </Box>
@@ -42,7 +45,7 @@ function Layout({ children }) {
               margin: 'auto',
             }}
           />
-        )}
+        )} */}
       </Container>
       <Footer className="layout-footer" />
     </Root>

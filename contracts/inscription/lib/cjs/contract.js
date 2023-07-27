@@ -310,29 +310,6 @@ const getTxExplorerUrl = ({ chainId, hash }) => {
   return `${getExplorerUrl(chainId)}/tx/${hash}`;
 };
 
-const getCloneContractArgs = ({
-  ownerAddress,
-  baseImageURI,
-  contractName,
-  contractSymbol = '',
-  contractDescription,
-  totalLimit = 0,
-  price = '0',
-  transferTokenAddress,
-} = {}) => {
-  const params = [
-    ownerAddress,
-    baseImageURI,
-    contractName,
-    contractSymbol,
-    contractDescription,
-    totalLimit,
-    price,
-    transferTokenAddress || ownerAddress,
-  ];
-  return params;
-};
-
 const getEvmChainList = () => {
   // eslint-disable-next-line global-require
   let currentChainList = defaultChainList;
@@ -373,7 +350,6 @@ module.exports.getChainInfo = getChainInfo;
 module.exports.getBlockExplorerUrl = getBlockExplorerUrl;
 module.exports.getTxExplorerUrl = getTxExplorerUrl;
 module.exports.getAddressExplorerUrl = getAddressExplorerUrl;
-module.exports.getCloneContractArgs = getCloneContractArgs;
 module.exports.getEvmChainList = getEvmChainList;
 module.exports.setupContractEnv = setupContractEnv;
 module.exports.getChainIdByChainName = getChainIdByChainName;

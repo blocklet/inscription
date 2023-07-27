@@ -451,29 +451,6 @@ const getTxExplorerUrl = ({ chainId, hash }) => {
   return `${getExplorerUrl(chainId)}/tx/${hash}`;
 };
 
-const getCloneContractArgs = ({
-  ownerAddress,
-  baseImageURI,
-  contractName,
-  contractSymbol = '',
-  contractDescription,
-  totalLimit = 0,
-  price = '0',
-  transferTokenAddress,
-} = {}) => {
-  const params = [
-    ownerAddress,
-    baseImageURI,
-    contractName,
-    contractSymbol,
-    contractDescription,
-    totalLimit,
-    price,
-    transferTokenAddress || ownerAddress,
-  ];
-  return params;
-};
-
 const getEvmChainList = () => {
   // eslint-disable-next-line global-require
   let currentChainList = defaultChainList;
@@ -513,7 +490,6 @@ var getChainInfo_1 = contract$1.getChainInfo = getChainInfo;
 var getBlockExplorerUrl_1 = contract$1.getBlockExplorerUrl = getBlockExplorerUrl;
 var getTxExplorerUrl_1 = contract$1.getTxExplorerUrl = getTxExplorerUrl;
 var getAddressExplorerUrl_1 = contract$1.getAddressExplorerUrl = getAddressExplorerUrl;
-var getCloneContractArgs_1 = contract$1.getCloneContractArgs = getCloneContractArgs;
 var getEvmChainList_1 = contract$1.getEvmChainList = getEvmChainList;
 var setupContractEnv_1 = contract$1.setupContractEnv = setupContractEnv;
 var getChainIdByChainName_1 = contract$1.getChainIdByChainName = getChainIdByChainName;
@@ -523,4 +499,4 @@ var getProvider_1 = contract$1.getProvider = getProvider;
 var verifyContract_1 = contract$1.verifyContract = verifyContract;
 var waitFor_1 = contract$1.waitFor = waitFor;
 
-export { createContractFactory_1 as createContractFactory, contract$1 as default, ethers_1 as ethers, getAddressExplorerUrl_1 as getAddressExplorerUrl, getBlockExplorerUrl_1 as getBlockExplorerUrl, getChainId_1 as getChainId, getChainIdByChainName_1 as getChainIdByChainName, getChainInfo_1 as getChainInfo, getCloneContractArgs_1 as getCloneContractArgs, getDynamicChainMap_1 as getDynamicChainMap, getEvmChainList_1 as getEvmChainList, getGasPrice_1 as getGasPrice, getProvider_1 as getProvider, getTxData_1 as getTxData, getTxExplorerUrl_1 as getTxExplorerUrl, onContractFilter_1 as onContractFilter, setupContractEnv_1 as setupContractEnv, verifyContract_1 as verifyContract, waitFor_1 as waitFor, waitForTxReceipt_1 as waitForTxReceipt };
+export { createContractFactory_1 as createContractFactory, contract$1 as default, ethers_1 as ethers, getAddressExplorerUrl_1 as getAddressExplorerUrl, getBlockExplorerUrl_1 as getBlockExplorerUrl, getChainId_1 as getChainId, getChainIdByChainName_1 as getChainIdByChainName, getChainInfo_1 as getChainInfo, getDynamicChainMap_1 as getDynamicChainMap, getEvmChainList_1 as getEvmChainList, getGasPrice_1 as getGasPrice, getProvider_1 as getProvider, getTxData_1 as getTxData, getTxExplorerUrl_1 as getTxExplorerUrl, onContractFilter_1 as onContractFilter, setupContractEnv_1 as setupContractEnv, verifyContract_1 as verifyContract, waitFor_1 as waitFor, waitForTxReceipt_1 as waitForTxReceipt };

@@ -1,5 +1,5 @@
 name: inscription
-version: 0.0.4
+version: 0.0.5
 title: Inscription
 description: A blocklet that lets you write inscriptions on chains.
 keywords:
@@ -40,7 +40,7 @@ interfaces:
             - /
             - /api/**
             - /manifest.json
-          whoCanAccess: invited
+          whoCanAccess: all
           profileFields:
             - fullName
             - email

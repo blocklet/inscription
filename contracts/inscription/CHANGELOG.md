@@ -1,3 +1,7 @@
+## 0.0.4 (July 28, 2023)
+
+- chore: adjust did system
+
 ## 0.0.3 (July 27, 2023)
 
 - fix: replace logo again

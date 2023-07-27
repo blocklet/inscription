@@ -4,8 +4,11 @@ const getWallet = require('@blocklet/sdk/lib/wallet');
 const WalletAuthenticator = require('@blocklet/sdk/lib/wallet-authenticator');
 const WalletHandler = require('@blocklet/sdk/lib/wallet-handler');
 const GraphQLClient = require('@ocap/client');
-
+const { Auth } = require('@blocklet/sdk');
 const env = require('./env');
+
+const authClient = new Auth();
+const getOwnerDid = () => authClient.getOwner().then((res) => res?.user?.did);
 
 const client = new GraphQLClient(env.chainHost);
 
@@ -25,4 +28,5 @@ module.exports = {
   wallet,
   ethWallet,
   client,
+  getOwnerDid,
 };

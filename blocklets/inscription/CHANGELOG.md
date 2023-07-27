@@ -1,3 +1,7 @@
+## 0.0.5 (July 28, 2023)
+
+- chore: adjust did system
+
 ## 0.0.4 (July 27, 2023)
 
 - chore: remove did spaces env

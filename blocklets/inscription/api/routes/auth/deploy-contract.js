@@ -10,7 +10,7 @@ const {
 const Inscription = require('@arcblock/inscription-contract/lib/Inscription.json');
 const Contract = require('../../db/contract');
 const logger = require('../../libs/logger');
-
+const { getOwnerDid } = require('../../libs/auth');
 const { getAuthPrincipal } = require('../../libs');
 
 module.exports = {
@@ -24,10 +24,15 @@ module.exports = {
         const { chainId, message } = extraParams;
 
         const isETHWalletType = isEthereumDid(userDid);
+        const ownerDid = await getOwnerDid();
 
-        logger.info({ isETHWalletType, chainId, message });
+        logger.info({ isETHWalletType, chainId, message, ownerDid });
 
         if (isETHWalletType) {
+          // if (userDid !== ownerDid) {
+          //   throw new Error('Only blocklet owner can deploy contract');
+          // }
+
           const provider = await getProvider(chainId);
           const contractFactory = await createContractFactory({
             abi: Inscription.abi,
@@ -79,7 +84,7 @@ module.exports = {
         });
 
         // FIXME: txHash may be speeding up by DID Wallet, so we need to wait for the real tx
-        waitForTxReceipt({ txHash: hash, provider, ownerAddress: userDid })
+        waitForTxReceipt({ txHash: hash, provider })
           .then(async (receipt) => {
             const { logs, contractAddress } = receipt;
             const contract = new ethers.Contract(contractAddress, Inscription.abi, provider);

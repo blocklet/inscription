@@ -9,7 +9,7 @@ const {
 } = require('@arcblock/inscription-contract/contract');
 const Inscription = require('@arcblock/inscription-contract/lib/Inscription.json');
 const logger = require('../../libs/logger');
-
+const { getOwnerDid } = require('../../libs/auth');
 const { getAuthPrincipal } = require('../../libs');
 
 module.exports = {
@@ -21,12 +21,16 @@ module.exports = {
     {
       signature: async ({ userDid, extraParams }) => {
         const { chainId, message, contractAddress } = extraParams;
-
         const isETHWalletType = isEthereumDid(userDid);
+        const ownerDid = await getOwnerDid();
 
-        logger.info({ isETHWalletType, chainId, message });
+        logger.info({ isETHWalletType, chainId, message, ownerDid });
 
         if (isETHWalletType) {
+          // if (userDid !== ownerDid) {
+          //   throw new Error('Only owner can record message');
+          // }
+
           const provider = await getProvider(chainId);
           const contract = new ethers.Contract(contractAddress, Inscription.abi, provider);
 
@@ -81,7 +85,7 @@ module.exports = {
         });
 
         // FIXME: txHash may be speeding up by DID Wallet, so we need to wait for the real tx
-        waitForTxReceipt({ txHash: hash, provider, ownerAddress: userDid })
+        waitForTxReceipt({ txHash: hash, provider })
           .then(async (receipt) => {
             const { logs, contractAddress } = receipt;
             const contract = new ethers.Contract(contractAddress, Inscription.abi, provider);
