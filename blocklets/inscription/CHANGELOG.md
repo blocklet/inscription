@@ -1,3 +1,7 @@
+## 0.0.3 (July 27, 2023)
+
+- fix: replace logo again
+
 ## 0.0.2 (July 27, 2023)
 
 - fix: replace logo 

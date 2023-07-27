@@ -4,7 +4,7 @@
     "access": "public"
   },
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "copy-to-lib": "node tools/copy-to-lib.js && npx rollup -c",
     "batch-verify-contract": "node tools/batch-verify-contract.js",
