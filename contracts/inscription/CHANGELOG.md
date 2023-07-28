@@ -1,3 +1,7 @@
+## 0.0.8 (July 28, 2023)
+
+- fix: resolve the bug of validate contract
+
 ## 0.0.7 (July 28, 2023)
 
 - fix: resolve the bug of networkflow

@@ -1,3 +1,7 @@
+## 0.0.11 (July 28, 2023)
+
+- fix: resolve the bug of validate contract
+
 ## 0.0.10 (July 28, 2023)
 
 - fix: resolve the bug of nw
