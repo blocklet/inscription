@@ -1,3 +1,7 @@
+## 0.0.10 (July 28, 2023)
+
+- fix: resolve the bug of nw
+
 ## 0.0.9 (July 28, 2023)
 
 - fix: resolve the bug of networkflow
