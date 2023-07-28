@@ -1,5 +1,5 @@
 name: inscription
-version: 0.0.13
+version: 0.0.14
 title: Inscription
 description: A blocklet that lets you write inscriptions on chains.
 keywords:
@@ -76,9 +76,7 @@ capabilities:
   navigation: true
   serverless: true
 screenshots:
-  - 0-collection.png
-  - 1-nft.png
-  - 2-mint.png
+  - 0-inscription.png
 navigation:
   - id: Home
     title:

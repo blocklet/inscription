@@ -1,3 +1,7 @@
+## 0.0.14 (July 29, 2023)
+
+- fix: resolve the bug of screenshots error in blocklet store
+
 ## 0.0.13 (July 29, 2023)
 
 - chore: update README.md
