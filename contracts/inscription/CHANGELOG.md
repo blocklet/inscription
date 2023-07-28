@@ -1,3 +1,7 @@
+## 0.0.7 (July 28, 2023)
+
+- fix: resolve the bug of networkflow
+
 ## 0.0.6 (July 28, 2023)
 
 - feat: support verify contract use API Key

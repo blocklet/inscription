@@ -1,5 +1,6 @@
 const logger = require('../../libs/logger');
 const { getOwnerDid } = require('../../libs/auth');
+const { api } = require('../../libs/request');
 
 module.exports = {
   action: 'verify-blocklet-owner',
@@ -24,12 +25,11 @@ module.exports = {
   ],
   // `nw` is ABBR for `nextWorkflow`
   onAuth: async ({ extraParams }) => {
-    const { nw } = extraParams;
-
+    // FIXME: should use signature to verify the user
+    const { nwUrl } = extraParams;
+    const { data } = await api.get(nwUrl);
     return {
-      disposition: 'attachment',
-      type: 'VerifiableCredential',
-      nextWorkflow: nw,
+      nextWorkflow: data.url,
     };
   },
 };

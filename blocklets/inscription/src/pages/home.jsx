@@ -173,9 +173,9 @@ function Home() {
       Object.keys(defaultParams).forEach((key) => {
         nextUrl.searchParams.append(key, defaultParams[key]);
       });
-      const { data } = await api.get(nextUrl.href);
+      // joinUrl
       extraParams = {
-        nw: data.url,
+        nwUrl: nextUrl.href,
       };
     }
 
