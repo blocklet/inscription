@@ -1,3 +1,7 @@
+## 0.0.13 (July 29, 2023)
+
+- chore: update README.md
+
 ## 0.0.12 (July 29, 2023)
 
 - chore: update contract verified ux
