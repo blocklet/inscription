@@ -1,3 +1,7 @@
+## 0.0.12 (July 29, 2023)
+
+- chore: update contract verified ux
+
 ## 0.0.11 (July 28, 2023)
 
 - fix: resolve the bug of validate contract
