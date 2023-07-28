@@ -1,0 +1,10 @@
+{
+  "module": "contract",
+  "action": "verifysourcecode",
+  "codeformat": "solidity-single-file",
+  "runs": 200,
+  "optimizationUsed": 1,
+  "sourceCode": "// SPDX-License-Identifier: Unlicense\npragma solidity ^0.8.19;\n\n// .___                           .__        __  .__\n// |   | ____   ______ ___________|__|______/  |_|__| ____   ____\n// |   |/    \\ /  ___// ___\\_  __ \\  \\____ \\   __\\  |/  _ \\ /    \\\n// |   |   |  \\\\___ \\\\  \\___|  | \\/  |  |_> >  | |  (  <_> )   |  \\\n// |___|___|  /____  >\\___  >__|  |__|   __/|__| |__|\\____/|___|  /\n//          \\/     \\/     \\/         |__|                       \\/\n//\n// Powered by ArcBlock (https://github.com/blocklet/inscription)\n\ncontract Inscription {\n  address public owner;\n  uint256 private messageCount = 0;\n  mapping(uint256 => string) private messages;\n  event RecordedMessage(uint256 indexed index, string message);\n\n  modifier onlyOwner() {\n    require(msg.sender == owner, 'Only the owner can call this function.');\n    _;\n  }\n\n  modifier messageNotEmpty(string memory message) {\n    require(bytes(message).length > 0, 'Message cannot be empty.');\n    _;\n  }\n\n  constructor(string memory firstMessage) {\n    owner = msg.sender;\n    recordMessage(firstMessage);\n  }\n\n  function recordMessage(string memory message) public onlyOwner messageNotEmpty(message) {\n    messages[messageCount] = message;\n    emit RecordedMessage(messageCount, message);\n    messageCount++;\n  }\n\n  function getMessage(uint256 index) public view returns (string memory) {\n    require(index >= 0 && index <= messageCount, 'Invalid message index.');\n    return messages[index];\n  }\n\n  function getAllMessage() public view returns (string[] memory) {\n    string[] memory allMessage = new string[](messageCount);\n    for (uint256 i = 0; i < messageCount; i++) {\n      allMessage[i] = messages[i];\n    }\n    return allMessage;\n  }\n}\n",
+  "contractname": "Inscription",
+  "compilerversion": "v0.8.19+commit.7dd6d404"
+}

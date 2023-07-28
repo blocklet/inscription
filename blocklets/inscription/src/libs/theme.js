@@ -1,8 +1,8 @@
 import { create } from '@arcblock/ux/lib/Theme';
 import colors from '@arcblock/ux/lib/Colors';
 
-const primaryColor = '#8C6AFC';
-const secondaryColor = '#8C6AFC';
+const primaryColor = '#17adb3';
+const secondaryColor = '#17adb3';
 
 const theme = create({
   palette: {

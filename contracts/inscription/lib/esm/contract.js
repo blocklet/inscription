@@ -1,11 +1,12 @@
 import require$$0 from 'dotenv-flow';
 import * as ethers$1 from 'ethers';
 import require$$2 from 'axios';
-import require$$3 from 'p-wait-for';
+import require$$3 from 'qs';
+import require$$4 from 'p-wait-for';
 import * as util from '@ocap/util';
-import require$$5 from 'lodash/upperFirst';
-import require$$6 from 'lodash/keyBy';
-import require$$7 from 'lodash/pick';
+import require$$6 from 'lodash/upperFirst';
+import require$$7 from 'lodash/keyBy';
+import require$$8 from 'lodash/pick';
 
 function getAugmentedNamespace(n) {
   if (n.__esModule) return n;
@@ -36,9 +37,9 @@ var contract$1 = {};
 
 var require$$1 = /*@__PURE__*/getAugmentedNamespace(ethers$1);
 
-var require$$4 = /*@__PURE__*/getAugmentedNamespace(util);
+var require$$5 = /*@__PURE__*/getAugmentedNamespace(util);
 
-var require$$8 = [
+var require$$9 = [
 	{
 		networkName: "mainnet",
 		chainName: "Ethereum Mainnet",
@@ -46,6 +47,7 @@ var require$$8 = [
 		symbol: "ETH",
 		defaultRPC: "https://mainnet.infura.io/v3/2ddf4a827a12475c8eb172b51d567584",
 		explorer: "https://etherscan.io",
+		verifyUrl: "https://api.etherscan.io/api",
 		icon: "eth",
 		enable: true,
 		decimal: 18,
@@ -58,6 +60,7 @@ var require$$8 = [
 		symbol: "ETH (Goerli)",
 		defaultRPC: "https://goerli.infura.io/v3/2ddf4a827a12475c8eb172b51d567584",
 		explorer: "https://goerli.etherscan.io",
+		verifyUrl: "https://api-goerli.etherscan.io/api",
 		icon: "eth",
 		enable: true,
 		decimal: 18,
@@ -65,11 +68,12 @@ var require$$8 = [
 	},
 	{
 		networkName: "bsc-test",
-		chainName: "BNB (Binance Smart Chain)",
+		chainName: "Binance Smart Chain",
 		chainId: "97",
 		symbol: "tBNB",
 		defaultRPC: "https://bsc.getblock.io/6e19d7c6-5532-4fd8-9e7b-12e9b194f909/testnet",
 		explorer: "https://testnet.bscscan.com",
+		verifyUrl: "https://api-testnet.bscscan.com/api",
 		icon: "bnb",
 		enable: true,
 		decimal: 18,
@@ -82,6 +86,7 @@ var require$$8 = [
 		symbol: "ETH (Optimism Goerli)",
 		defaultRPC: "https://optimism-goerli.infura.io/v3/2ddf4a827a12475c8eb172b51d567584",
 		explorer: "https://goerli-optimism.etherscan.io",
+		verifyUrl: "https://api-goerli-optimism.etherscan.io/api",
 		icon: "optimism",
 		enable: false,
 		decimal: 18,
@@ -94,6 +99,7 @@ var require$$8 = [
 		symbol: "ETH",
 		defaultRPC: "https://developer-access-mainnet.base.org",
 		explorer: "https://basescan.org",
+		verifyUrl: "https://api.basescan.org/api",
 		icon: "base",
 		enable: true,
 		decimal: 18,
@@ -106,6 +112,7 @@ var require$$8 = [
 		symbol: "ETH (Localhost)",
 		defaultRPC: "http://localhost:8545",
 		explorer: "http://localhost:8545",
+		verifyUrl: "http://localhost:8545",
 		icon: "eth",
 		enable: true,
 		decimal: 18,
@@ -119,6 +126,7 @@ var require$$8 = [
 		symbol: "ETH (Base Goerli)",
 		defaultRPC: "https://goerli.base.org",
 		explorer: "https://goerli.basescan.org",
+		verifyUrl: "https://api-goerli.basescan.org/api",
 		icon: "base",
 		enable: true,
 		decimal: 18,
@@ -131,6 +139,7 @@ var require$$8 = [
 		symbol: "ETH (Sepolia)",
 		defaultRPC: "https://sepolia.infura.io/v3/2ddf4a827a12475c8eb172b51d567584",
 		explorer: "https://sepolia.etherscan.io",
+		verifyUrl: "https://api-sepolia.etherscan.io/api",
 		icon: "eth",
 		enable: false,
 		decimal: 18,
@@ -138,21 +147,44 @@ var require$$8 = [
 	}
 ];
 
+var module = "contract";
+var action = "verifysourcecode";
+var codeformat = "solidity-single-file";
+var runs = 200;
+var optimizationUsed = 1;
+var sourceCode = "// SPDX-License-Identifier: Unlicense\npragma solidity ^0.8.19;\n\n// .___                           .__        __  .__\n// |   | ____   ______ ___________|__|______/  |_|__| ____   ____\n// |   |/    \\ /  ___// ___\\_  __ \\  \\____ \\   __\\  |/  _ \\ /    \\\n// |   |   |  \\\\___ \\\\  \\___|  | \\/  |  |_> >  | |  (  <_> )   |  \\\n// |___|___|  /____  >\\___  >__|  |__|   __/|__| |__|\\____/|___|  /\n//          \\/     \\/     \\/         |__|                       \\/\n//\n// Powered by ArcBlock (https://github.com/blocklet/inscription)\n\ncontract Inscription {\n  address public owner;\n  uint256 private messageCount = 0;\n  mapping(uint256 => string) private messages;\n  event RecordedMessage(uint256 indexed index, string message);\n\n  modifier onlyOwner() {\n    require(msg.sender == owner, 'Only the owner can call this function.');\n    _;\n  }\n\n  modifier messageNotEmpty(string memory message) {\n    require(bytes(message).length > 0, 'Message cannot be empty.');\n    _;\n  }\n\n  constructor(string memory firstMessage) {\n    owner = msg.sender;\n    recordMessage(firstMessage);\n  }\n\n  function recordMessage(string memory message) public onlyOwner messageNotEmpty(message) {\n    messages[messageCount] = message;\n    emit RecordedMessage(messageCount, message);\n    messageCount++;\n  }\n\n  function getMessage(uint256 index) public view returns (string memory) {\n    require(index >= 0 && index <= messageCount, 'Invalid message index.');\n    return messages[index];\n  }\n\n  function getAllMessage() public view returns (string[] memory) {\n    string[] memory allMessage = new string[](messageCount);\n    for (uint256 i = 0; i < messageCount; i++) {\n      allMessage[i] = messages[i];\n    }\n    return allMessage;\n  }\n}\n";
+var contractname = "Inscription";
+var compilerversion = "v0.8.19+commit.7dd6d404";
+var require$$10 = {
+	module: module,
+	action: action,
+	codeformat: codeformat,
+	runs: runs,
+	optimizationUsed: optimizationUsed,
+	sourceCode: sourceCode,
+	contractname: contractname,
+	compilerversion: compilerversion
+};
+
 /* eslint-disable no-unused-vars */
 
 /* eslint-disable no-undef */
 require$$0.config();
 const ethers = require$$1;
 const axios = require$$2;
-const waitFor = require$$3;
-const { toBase58 } = require$$4;
-const upperFirst = require$$5;
-const keyBy = require$$6;
-const pick = require$$7;
-const defaultChainList = require$$8;
+const qs = require$$3;
+const waitFor = require$$4;
+const { toBase58 } = require$$5;
+const upperFirst = require$$6;
+const keyBy = require$$7;
+const pick = require$$8;
+const defaultChainList = require$$9;
+const defaultVerifyContract = require$$10;
 
 const CUSTOM_CHAIN_MAP = {};
 const CHAIN_MAP = {};
+
+const api = axios.create({});
 
 // setup by defaultChainList
 defaultChainList.forEach((chain) => {
@@ -168,6 +200,7 @@ const getDynamicChainMap = ({ INFURA_PROJECT_ID, GETBLOCK_API_KEY }) => ({
     symbol: 'ETH',
     defaultRPC: `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
     explorer: 'https://etherscan.io',
+    verifyUrl: 'https://api.etherscan.io/api',
     icon: 'eth',
     enable: true,
     decimal: 18,
@@ -180,6 +213,7 @@ const getDynamicChainMap = ({ INFURA_PROJECT_ID, GETBLOCK_API_KEY }) => ({
     symbol: 'ETH (Goerli)',
     defaultRPC: `https://goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
     explorer: 'https://goerli.etherscan.io',
+    verifyUrl: 'https://api-goerli.etherscan.io/api',
     icon: 'eth',
     enable: true,
     decimal: 18,
@@ -192,6 +226,7 @@ const getDynamicChainMap = ({ INFURA_PROJECT_ID, GETBLOCK_API_KEY }) => ({
     symbol: 'ETH (Localhost)',
     defaultRPC: 'http://localhost:8545',
     explorer: 'http://localhost:8545',
+    verifyUrl: 'http://localhost:8545',
     icon: 'eth',
     enable: true,
     decimal: 18,
@@ -205,6 +240,7 @@ const getDynamicChainMap = ({ INFURA_PROJECT_ID, GETBLOCK_API_KEY }) => ({
     symbol: 'ETH',
     defaultRPC: 'https://developer-access-mainnet.base.org',
     explorer: 'https://basescan.org',
+    verifyUrl: 'https://api.basescan.org/api',
     icon: 'base',
     enable: true,
     decimal: 18,
@@ -217,6 +253,7 @@ const getDynamicChainMap = ({ INFURA_PROJECT_ID, GETBLOCK_API_KEY }) => ({
     symbol: 'ETH (Base Goerli)',
     defaultRPC: 'https://goerli.base.org',
     explorer: 'https://goerli.basescan.org',
+    verifyUrl: 'https://api-goerli.basescan.org/api',
     icon: 'base',
     enable: true,
     decimal: 18,
@@ -229,6 +266,7 @@ const getDynamicChainMap = ({ INFURA_PROJECT_ID, GETBLOCK_API_KEY }) => ({
     symbol: 'ETH (Sepolia)',
     defaultRPC: `https://sepolia.infura.io/v3/${INFURA_PROJECT_ID}`,
     explorer: 'https://sepolia.etherscan.io',
+    verifyUrl: 'https://api-sepolia.etherscan.io/api',
     icon: 'eth',
     enable: false, // FIXME: not support by DID Wallet
     decimal: 18,
@@ -236,11 +274,12 @@ const getDynamicChainMap = ({ INFURA_PROJECT_ID, GETBLOCK_API_KEY }) => ({
   },
   97: {
     networkName: 'bsc-test',
-    chainName: 'BNB (Binance Smart Chain)',
+    chainName: 'Binance Smart Chain',
     chainId: '97',
     symbol: 'tBNB',
     defaultRPC: `https://bsc.getblock.io/${GETBLOCK_API_KEY}/testnet`,
     explorer: 'https://testnet.bscscan.com',
+    verifyUrl: 'https://api-testnet.bscscan.com/api',
     icon: 'bnb',
     enable: true,
     decimal: 18,
@@ -253,6 +292,7 @@ const getDynamicChainMap = ({ INFURA_PROJECT_ID, GETBLOCK_API_KEY }) => ({
     symbol: 'ETH (Optimism Goerli)',
     defaultRPC: `https://optimism-goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
     explorer: 'https://goerli-optimism.etherscan.io',
+    verifyUrl: 'https://api-goerli-optimism.etherscan.io/api',
     icon: 'optimism',
     enable: false, // FIXME: not support by DID Wallet
     decimal: 18,
@@ -272,7 +312,7 @@ async function getGasPrice({ provider }) {
 
   // ethereum
   if ([1, '1', 'mainnet', 'eth-main'].includes(chainId)) {
-    const { data } = await axios.get(`https://token-data.arcblock.io/api/gas-prices?chainId=${chainId}`);
+    const { data } = await api.get(`https://token-data.arcblock.io/api/gas-prices?chainId=${chainId}`);
     return (data.fast / 10) * gwei;
   }
 
@@ -477,7 +517,22 @@ async function createContractFactory({ abi, bytecode, signer } = {}) {
 }
 
 // batch verify parent contract
-async function verifyContract(network, defaultValue) {
+async function verifyContract({ chainId, apiKey, contractAddress, ...restParams }) {
+  const { verifyUrl } = getChainInfo(chainId);
+
+  const allParams = {
+    ...defaultVerifyContract,
+    ...restParams,
+    contractaddress: contractAddress,
+    apikey: apiKey,
+  };
+
+  const result = await api.post(verifyUrl, qs.stringify(allParams), {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
+  return result;
 }
 
 var ethers_1 = contract$1.ethers = ethers;

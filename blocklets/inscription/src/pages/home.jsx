@@ -1,11 +1,24 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { makeStyles } from '@mui/styles';
 import joinUrl from 'url-join';
-import { Select, MenuItem, TextField, IconButton, useMediaQuery } from '@mui/material';
+import {
+  Select,
+  MenuItem,
+  TextField,
+  IconButton,
+  useMediaQuery,
+  Button,
+  FormControl,
+  InputLabel,
+  OutlinedInput,
+  FormHelperText,
+} from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { useReactive, useRequest } from 'ahooks';
 // eslint-disable-next-line import/no-unresolved
-import { getProvider, waitForTxReceipt, waitFor } from '@arcblock/inscription-contract/contract';
+import { getProvider, waitForTxReceipt, waitFor, ethers } from '@arcblock/inscription-contract/contract';
+// eslint-disable-next-line import/no-unresolved, no-unused-vars
+import Inscription from '@arcblock/inscription-contract/lib/Inscription.json';
 import Empty from '@arcblock/ux/lib/Empty';
 import ExploreIcon from '@mui/icons-material/Explore';
 import DidAddress from '@arcblock/did-connect/lib/Address';
@@ -13,7 +26,7 @@ import DidAvatar from '@arcblock/did-connect/lib/Avatar';
 import Badge from '@arcblock/ux/lib/Badge';
 import { useLocaleContext } from '@arcblock/ux/lib/Locale/context';
 import { styled } from '@arcblock/ux/lib/Theme';
-import { ETHWallet, LottieAnimation } from '@nft-studio/react';
+import { ETHWallet, LottieAnimation, ConfirmDialog } from '@nft-studio/react';
 import AuthDialog from '../components/auth-dialog';
 import QuoteComponent from '../components/quote-component';
 import { useEnv } from '../contexts/use-env';
@@ -40,6 +53,7 @@ const checkIsETHWalletType = (chainId) => {
 };
 
 function Home() {
+  const confirmDialogRef = useRef(null);
   const ethWalletRef = useRef(null);
   const authRef = useRef(null);
   const lottieAnimationRef = useRef(null);
@@ -56,6 +70,7 @@ function Home() {
     chainId: localStorage.getItem('chainId') || '',
     loading: false,
     animationData: getRandomAnimationData('loading'),
+    apiKey: '',
   });
 
   useEffect(() => {
@@ -74,20 +89,70 @@ function Home() {
     if (!state.chainId) return;
     playAnimation();
     state.messages = [];
-    const { data } = await api.get(`/api/message/${state.chainId}`);
-    state.animationData = getRandomAnimationData('loading');
-    lottieAnimationRef.current?.pause();
-    state.messages = data;
+    const queryChainId = `${state.chainId}`;
+    const { data } = await api.get(`/api/message/${queryChainId}`);
+    // ensure the chainId is not changed
+    if (queryChainId === state.chainId) {
+      state.animationData = getRandomAnimationData('loading');
+      lottieAnimationRef.current?.pause();
+      state.messages = data;
+    }
   });
 
   const { loading: requestLoading, refreshAsync } = useRequest(getAllMessage, {
     refreshDeps: [state.chainId],
   });
 
+  const isLoading = requestLoading || state.loading;
+  const isDisabled = isLoading || !state.inputValue;
+
   const getCurrentChain = () => {
     return envMap?.chainList?.find((item) => item.chainId === state.chainId);
   };
 
+  // use other wallet auth
+  // eslint-disable-next-line no-unused-vars
+  const openAuthDialogOtherWallet = async () => {
+    // use other wallet
+    const setChainSuccess = await ethWalletRef.current?.setConnectedChain(state.chainId);
+
+    // should set chain success
+    if (!setChainSuccess) throw new Error(t('common.setChainFailureTip'));
+
+    const connectWallet = ethWalletRef.current?.getWallet();
+    const provider = new ethers.providers.Web3Provider(connectWallet.provider);
+
+    // eslint-disable-next-line no-unused-vars
+    const signer = provider.getSigner();
+    const { contractAddress } = getCurrentChain();
+    const deployed = !!contractAddress;
+
+    // deploy-contract should use nw to check if it's blocklet owner
+    if (!deployed) {
+      confirmDialogRef.current.open({
+        title: t('common.useDIDWallet'),
+        context: t('create.mustUseDIDWalletTip'),
+        onConfirm: async () => {
+          await openAuthDialog();
+        },
+        onCancel: () => {
+          window.history.back();
+        },
+        confirmColor: 'primary',
+      });
+    } else {
+      await openAuthDialog();
+      // const contract = new ethers.Contract(contractAddress, Inscription.abi, signer);
+      // try {
+      //   const estimateGas = await contract.estimateGas.recordMessage(state.newMessage);
+      //   const gasLimit = Math.ceil(estimateGas.toNumber() * 1.5);
+      // } catch (error) {
+      //   console.error(error.message);
+      // }
+    }
+  };
+
+  // use DID Wallet Auth
   const openAuthDialog = async () => {
     const { contractAddress } = getCurrentChain();
     const deployed = !!contractAddress;
@@ -191,7 +256,7 @@ function Home() {
           createdAt={formatTime(createdAt)}
           className="m-0.5 mb-4 !p-0"
           sx={{
-            borderLeft: `2px solid ${theme.palette.primary.main}}`,
+            borderLeft: `3px solid ${theme.palette.primary.main}}`,
           }}>
           {item.message}
         </QuoteComponent>
@@ -227,10 +292,14 @@ function Home() {
         </div>
 
         {withDIDAddress && checkIsETHWalletType(chainId) && explorerUrl && (
-          <div className="flex items-center mt-0.25 mb-0.25">
+          <div
+            className={`flex items-center ${isMobile ? 'mt-1' : 'mt-0.25'} mb-0.25 w-250px`}
+            style={{
+              justifyContent: isMobile ? 'flex-start' : 'flex-end',
+            }}>
             <DidAddress
               key="address"
-              className={`${isMobile ? 'w-full' : 'w-200px'}  mr-0.5`}
+              className="  mr-0.5"
               style={{
                 textAlign: isMobile ? 'left' : 'right',
               }}
@@ -260,10 +329,21 @@ function Home() {
   };
 
   const handleSendMessage = async () => {
-    if (!state.inputValue || state.loading || requestLoading) return;
+    if (isDisabled) return;
     if (`${`${state.inputValue}`}`?.trim?.()?.length > 0) {
       state.newMessage = state.inputValue;
-      await ethWalletRef.current?.open?.();
+
+      // FIXME: only use DID Wallet
+      await openAuthDialog();
+
+      // const wallet = ethWalletRef.current?.getWallet();
+
+      // if (!wallet) {
+      //   const connectedList = await ethWalletRef.current?.open?.();
+      //   if (!connectedList?.length) return; // use DID Wallet, trigger wallet Module onclick
+      // }
+
+      // await openAuthDialogOtherWallet();
     }
   };
 
@@ -271,6 +351,9 @@ function Home() {
     <div className={classes.container}>
       <div className={classes.header}>
         <Select
+          sx={{
+            width: isMobile ? '100%' : 'auto',
+          }}
           renderValue={() => {
             const currentChain = getCurrentChain();
             return currentChain
@@ -301,15 +384,89 @@ function Home() {
             );
           })}
         </Select>
+        {getCurrentChain()?.contractAddress && (
+          <Button
+            className="mt-1"
+            size="small"
+            onClick={async () => {
+              confirmDialogRef.current.open({
+                title: t('common.verifyContract'),
+                context: () => (
+                  <div>
+                    <FormControl sx={{ mt: 1, width: '100%' }} variant="outlined">
+                      <InputLabel>{t('common.apiKey')}</InputLabel>
+                      <OutlinedInput
+                        id="outlined-adornment-password"
+                        type="password"
+                        label={t('common.apiKey')}
+                        sx={{
+                          textSecurity: 'unset',
+                        }}
+                        value={state.apiKey}
+                        onChange={(e) => {
+                          state.verifyContractError = '';
+                          state.apiKey = e.target.value;
+                        }}
+                      />
+                      <FormHelperText id="filled-weight-helper-text" error={!!state.verifyContractError}>
+                        <div
+                          // eslint-disable-next-line react/no-danger
+                          dangerouslySetInnerHTML={{
+                            __html:
+                              state.verifyContractError ||
+                              t('common.apiKeyTip', {
+                                explorer: getCurrentChain()?.explorer,
+                                color: theme.palette.primary.main,
+                              }),
+                          }}
+                        />
+                      </FormHelperText>
+                    </FormControl>
+                  </div>
+                ),
+                onConfirm: async () => {
+                  const { data } = await api.post('/api/verify-contract', {
+                    chainId: state.chainId,
+                    apiKey: state.apiKey,
+                  });
+                  if (data?.status === '1') {
+                    confirmDialogRef.current.close();
+                    state.apiKey = '';
+                  } else {
+                    state.verifyContractError = data?.result || data?.message || t('common.unknownError');
+                    throw new Error(state.verifyContractError);
+                  }
+                },
+                onCancel: () => {
+                  state.apiKey = '';
+                  state.verifyContractError = '';
+                },
+                confirmColor: 'primary',
+              });
+            }}>
+            {t('common.verifyContract')}
+          </Button>
+        )}
       </div>
       <div
         className={classes.messages}
         style={{
           minHeight: '400px',
+          ...(isLoading && {
+            alignItems: 'center',
+            justifyContent: 'center',
+            display: 'flex',
+            overflowY: 'hidden',
+          }),
         }}>
-        {requestLoading || state.loading ? (
+        {isLoading ? (
           <LottieAnimation
-            style={{ height: '400px', width: '100%' }}
+            style={{
+              minHeight: '400px',
+              height: '50vh',
+              width: isMobile ? '100%' : '60vw',
+              transform: state.loading ? 'scale(1.4)' : '', // sending animation is small, so scale it
+            }}
             loop
             animationData={state.animationData}
             ref={lottieAnimationRef}
@@ -336,7 +493,7 @@ function Home() {
           InputProps={{
             endAdornment: (
               <IconButton
-                disabled={!state.inputValue || state.loading || requestLoading}
+                disabled={isDisabled}
                 type="button"
                 color="primary"
                 onClick={handleSendMessage}
@@ -355,8 +512,11 @@ function Home() {
             onClick: openAuthDialog,
           };
         }}
+        filterWallet={(walletList) => [walletList[0]]} // only use DID Wallet
       />
       <AuthDialog ref={authRef} popup />
+
+      <ConfirmDialog ref={confirmDialogRef} />
     </div>
   );
 }
@@ -382,6 +542,7 @@ const useStyles = makeStyles(() => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'column',
   },
   messages: {
     flex: '1',

@@ -4,7 +4,7 @@
     "access": "public"
   },
   "private": true,
-  "version": "0.0.5",
+  "version": "0.0.6",
   "scripts": {
     "copy-to-lib": "node tools/copy-to-lib.js && npx rollup -c",
     "batch-verify-contract": "node tools/batch-verify-contract.js",
@@ -80,6 +80,7 @@
     "eslint": "^8.45.0",
     "ethers": "^5.7.2",
     "lodash": "^4.17.21",
-    "p-wait-for": "^3.2.0"
+    "p-wait-for": "^3.2.0",
+    "qs": "^6.11.2"
   }
 }

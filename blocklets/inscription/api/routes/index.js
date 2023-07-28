@@ -2,11 +2,40 @@ const middleware = require('@blocklet/sdk/lib/middlewares');
 const router = require('express').Router();
 const reverse = require('lodash/reverse');
 const keyBy = require('lodash/keyBy');
-const { getEvmChainList, getProvider, ethers } = require('@arcblock/inscription-contract/contract');
+const { getEvmChainList, getProvider, ethers, verifyContract } = require('@arcblock/inscription-contract/contract');
 const Inscription = require('@arcblock/inscription-contract/lib/Inscription.json');
 const env = require('../libs/env');
 
 const Contract = require('../db/contract');
+
+router.post('/verify-contract', middleware.user(), async (req, res) => {
+  const { chainId, apiKey } = req.body;
+  if (!chainId) {
+    throw new Error('chainId is required');
+  }
+
+  if (!apiKey) {
+    throw new Error('apiKey is required');
+  }
+
+  const { contractAddress } =
+    (await Contract.findOne({
+      _id: chainId,
+    })) || {};
+
+  if (!contractAddress) {
+    res.json(false);
+    return;
+  }
+
+  const { data } = await verifyContract({
+    chainId,
+    apiKey,
+    contractAddress,
+  });
+
+  res.json(data);
+});
 
 router.get('/message/:chainId', middleware.user(), async (req, res) => {
   const { chainId } = req.params;
@@ -20,7 +49,7 @@ router.get('/message/:chainId', middleware.user(), async (req, res) => {
 
   const { contractAddress, messageList } =
     (await Contract.findOne({
-      _id: req.params.chainId,
+      _id: chainId,
     })) || {};
 
   if (!contractAddress) {
@@ -40,9 +69,9 @@ router.get('/message/:chainId', middleware.user(), async (req, res) => {
   const result = reverse(
     allMessage.map((item, index) => {
       return {
-        ...messageMap[index], // from 0
+        ...messageMap[index], // mixed db data from 0
         message: item,
-        index: `#${index + 1}`, // ux from 1
+        index: `#${index + 1}`, // ux show index from 1
       };
     })
   );

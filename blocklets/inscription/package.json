@@ -1,6 +1,6 @@
 {
   "name": "inscription",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "private": true,
   "scripts": {
     "dev": "COMPONENT_STORE_URL=https://test.store.blocklet.dev blocklet dev",
@@ -60,7 +60,7 @@
     "@mui/material": "^5.14.2",
     "@mui/styles": "^5.14.1",
     "@mui/x-date-pickers": "^5.0.20",
-    "@nft-studio/react": "^0.1.20",
+    "@nft-studio/react": "^0.1.21",
     "@ocap/client": "^1.18.88",
     "@ocap/mcrypto": "^1.18.88",
     "@ocap/util": "^1.18.88",

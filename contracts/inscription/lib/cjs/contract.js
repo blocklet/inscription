@@ -3,15 +3,19 @@
 require('dotenv-flow').config();
 const ethers = require('ethers');
 const axios = require('axios');
+const qs = require('qs');
 const waitFor = require('p-wait-for');
 const { toBase58 } = require('@ocap/util');
 const upperFirst = require('lodash/upperFirst');
 const keyBy = require('lodash/keyBy');
 const pick = require('lodash/pick');
 const defaultChainList = require('./EvmChainList.json');
+const defaultVerifyContract = require('./VerifyContract.json');
 
 const CUSTOM_CHAIN_MAP = {};
 const CHAIN_MAP = {};
+
+const api = axios.create({});
 
 // setup by defaultChainList
 defaultChainList.forEach((chain) => {
@@ -27,6 +31,7 @@ const getDynamicChainMap = ({ INFURA_PROJECT_ID, GETBLOCK_API_KEY }) => ({
     symbol: 'ETH',
     defaultRPC: `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
     explorer: 'https://etherscan.io',
+    verifyUrl: 'https://api.etherscan.io/api',
     icon: 'eth',
     enable: true,
     decimal: 18,
@@ -39,6 +44,7 @@ const getDynamicChainMap = ({ INFURA_PROJECT_ID, GETBLOCK_API_KEY }) => ({
     symbol: 'ETH (Goerli)',
     defaultRPC: `https://goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
     explorer: 'https://goerli.etherscan.io',
+    verifyUrl: 'https://api-goerli.etherscan.io/api',
     icon: 'eth',
     enable: true,
     decimal: 18,
@@ -51,6 +57,7 @@ const getDynamicChainMap = ({ INFURA_PROJECT_ID, GETBLOCK_API_KEY }) => ({
     symbol: 'ETH (Localhost)',
     defaultRPC: 'http://localhost:8545',
     explorer: 'http://localhost:8545',
+    verifyUrl: 'http://localhost:8545',
     icon: 'eth',
     enable: true,
     decimal: 18,
@@ -64,6 +71,7 @@ const getDynamicChainMap = ({ INFURA_PROJECT_ID, GETBLOCK_API_KEY }) => ({
     symbol: 'ETH',
     defaultRPC: 'https://developer-access-mainnet.base.org',
     explorer: 'https://basescan.org',
+    verifyUrl: 'https://api.basescan.org/api',
     icon: 'base',
     enable: true,
     decimal: 18,
@@ -76,6 +84,7 @@ const getDynamicChainMap = ({ INFURA_PROJECT_ID, GETBLOCK_API_KEY }) => ({
     symbol: 'ETH (Base Goerli)',
     defaultRPC: 'https://goerli.base.org',
     explorer: 'https://goerli.basescan.org',
+    verifyUrl: 'https://api-goerli.basescan.org/api',
     icon: 'base',
     enable: true,
     decimal: 18,
@@ -88,6 +97,7 @@ const getDynamicChainMap = ({ INFURA_PROJECT_ID, GETBLOCK_API_KEY }) => ({
     symbol: 'ETH (Sepolia)',
     defaultRPC: `https://sepolia.infura.io/v3/${INFURA_PROJECT_ID}`,
     explorer: 'https://sepolia.etherscan.io',
+    verifyUrl: 'https://api-sepolia.etherscan.io/api',
     icon: 'eth',
     enable: false, // FIXME: not support by DID Wallet
     decimal: 18,
@@ -95,11 +105,12 @@ const getDynamicChainMap = ({ INFURA_PROJECT_ID, GETBLOCK_API_KEY }) => ({
   },
   97: {
     networkName: 'bsc-test',
-    chainName: 'BNB (Binance Smart Chain)',
+    chainName: 'Binance Smart Chain',
     chainId: '97',
     symbol: 'tBNB',
     defaultRPC: `https://bsc.getblock.io/${GETBLOCK_API_KEY}/testnet`,
     explorer: 'https://testnet.bscscan.com',
+    verifyUrl: 'https://api-testnet.bscscan.com/api',
     icon: 'bnb',
     enable: true,
     decimal: 18,
@@ -112,6 +123,7 @@ const getDynamicChainMap = ({ INFURA_PROJECT_ID, GETBLOCK_API_KEY }) => ({
     symbol: 'ETH (Optimism Goerli)',
     defaultRPC: `https://optimism-goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
     explorer: 'https://goerli-optimism.etherscan.io',
+    verifyUrl: 'https://api-goerli-optimism.etherscan.io/api',
     icon: 'optimism',
     enable: false, // FIXME: not support by DID Wallet
     decimal: 18,
@@ -131,7 +143,7 @@ async function getGasPrice({ provider }) {
 
   // ethereum
   if ([1, '1', 'mainnet', 'eth-main'].includes(chainId)) {
-    const { data } = await axios.get(`https://token-data.arcblock.io/api/gas-prices?chainId=${chainId}`);
+    const { data } = await api.get(`https://token-data.arcblock.io/api/gas-prices?chainId=${chainId}`);
     return (data.fast / 10) * gwei;
   }
 
@@ -336,8 +348,22 @@ async function createContractFactory({ abi, bytecode, signer } = {}) {
 }
 
 // batch verify parent contract
-async function verifyContract(network, defaultValue) {
-  const command = `npx hardhat verify --network ${network} ${defaultValue}`;
+async function verifyContract({ chainId, apiKey, contractAddress, ...restParams }) {
+  const { verifyUrl } = getChainInfo(chainId);
+
+  const allParams = {
+    ...defaultVerifyContract,
+    ...restParams,
+    contractaddress: contractAddress,
+    apikey: apiKey,
+  };
+
+  const result = await api.post(verifyUrl, qs.stringify(allParams), {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
+  return result;
 }
 
 module.exports.ethers = ethers;

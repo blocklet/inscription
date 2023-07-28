@@ -1,3 +1,7 @@
+## 0.0.6 (July 28, 2023)
+
+- feat: support verify contract use API Key
+
 ## 0.0.5 (July 28, 2023)
 
 - chore: support auth by DID Wallet

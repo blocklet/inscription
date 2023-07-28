@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const forEach = require('lodash/forEach');
+const last = require('lodash/last');
 const { setupContractEnv, getDynamicChainMap } = require('./contract');
 
 const cjsLibPath = path.join(__dirname, '../lib/cjs');
@@ -21,13 +22,15 @@ try {
   fs.mkdirSync(cjsLibPath, { recursive: true });
 }
 
-// Copy Inscription ABI to lib folder
+const contractName = 'Inscription';
+
+// Copy contract ABI to lib folder
 (() => {
-  const source = fs.readFileSync(path.join(__dirname, '../artifacts/src/Inscription.sol/Inscription.json'));
+  const source = fs.readFileSync(path.join(__dirname, `../artifacts/src/${contractName}.sol/${contractName}.json`));
   const json = JSON.parse(source);
-  fs.writeFileSync(path.join(__dirname, '../tools/Inscription.json'), JSON.stringify(json, null, 2));
-  fs.writeFileSync(path.join(cjsLibPath, 'Inscription.json'), JSON.stringify(json, null, 2));
-  console.log('Inscription contract compiled result copied');
+  fs.writeFileSync(path.join(__dirname, `../tools/${contractName}.json`), JSON.stringify(json, null, 2));
+  fs.writeFileSync(path.join(cjsLibPath, `${contractName}.json`), JSON.stringify(json, null, 2));
+  console.log(`${contractName} contract compiled result copied`);
 })();
 
 // Copy Tools to lib folder
@@ -41,7 +44,7 @@ try {
   });
 })();
 
-// Generate chainList from env
+// Generate chainList
 (() => {
   const evmChainIdList = [];
 
@@ -53,4 +56,41 @@ try {
 
   fs.writeFileSync(path.join(cjsLibPath, `${fileName}`), JSON.stringify(evmChainIdList, null, 2));
   fs.writeFileSync(path.join(__dirname, `../tools/${fileName}`), JSON.stringify(evmChainIdList, null, 2));
+})();
+
+// Generate verify contract json
+(() => {
+  const verifyContractJson = {
+    module: 'contract',
+    action: 'verifysourcecode',
+    codeformat: 'solidity-single-file',
+    runs: 200,
+    optimizationUsed: 1,
+    sourceCode: '',
+    contractname: '',
+    compilerversion: '',
+  };
+
+  // get source code
+  const source = fs.readFileSync(path.join(__dirname, `../artifacts/src/${contractName}.sol/${contractName}.json`));
+  const json = JSON.parse(source);
+
+  // get buildInfo path
+  const buildInfoSource = fs.readFileSync(
+    path.join(__dirname, `../artifacts/src/${contractName}.sol/${contractName}.dbg.json`)
+  );
+  const { buildInfo } = JSON.parse(buildInfoSource);
+
+  // get buildInfo
+  const buildSource = fs.readFileSync(path.join(__dirname, '../artifacts/build-info/', last(buildInfo.split('/'))));
+  const buildJson = JSON.parse(buildSource);
+
+  verifyContractJson.sourceCode = fs.readFileSync(path.join(__dirname, `../${json.sourceName}`)).toString();
+  verifyContractJson.contractname = json.contractName;
+  verifyContractJson.compilerversion = `v${buildJson.solcLongVersion}`;
+
+  const fileName = 'VerifyContract.json';
+
+  fs.writeFileSync(path.join(cjsLibPath, `${fileName}`), JSON.stringify(verifyContractJson, null, 2));
+  fs.writeFileSync(path.join(__dirname, `../tools/${fileName}`), JSON.stringify(verifyContractJson, null, 2));
 })();

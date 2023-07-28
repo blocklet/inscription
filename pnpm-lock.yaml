@@ -86,8 +86,8 @@ importers:
         specifier: ^5.0.20
         version: 5.0.20(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/material@5.14.2)(@mui/system@5.14.1)(dayjs@1.11.9)(react-dom@18.2.0)(react@18.2.0)
       '@nft-studio/react':
-        specifier: ^0.1.20
-        version: 0.1.20(@babel/core@7.22.9)(@emotion/css@11.11.2)(@iconify/iconify@2.2.1)(@types/react@18.2.17)(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)(yjs@13.6.7)
+        specifier: ^0.1.21
+        version: 0.1.21(@babel/core@7.22.9)(@emotion/css@11.11.2)(@iconify/iconify@2.2.1)(@types/react@18.2.17)(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)(yjs@13.6.7)
       '@ocap/client':
         specifier: ^1.18.88
         version: 1.18.88
@@ -248,6 +248,9 @@ importers:
       p-wait-for:
         specifier: ^3.2.0
         version: 3.2.0
+      qs:
+        specifier: ^6.11.2
+        version: 6.11.2
     devDependencies:
       '@arcblock/eslint-config-base':
         specifier: ^0.2.4
@@ -749,8 +752,8 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /@arcblock/erc721did-contract@0.3.18:
-    resolution: {integrity: sha512-JxjndDoPQIgM5rEYCXCf6jU7lqQ3aZEVRX0sHR0i2QbCmfYq3jZAWp3Uw2XtgJxY0SPkpgiS4xC5I/L7NOkPvw==}
+  /@arcblock/erc721did-contract@0.3.19:
+    resolution: {integrity: sha512-TiL0M/DhPvKldfN7B04FbGrls3zPvNOn6YSxQkuq7693VRQyLoj+Eh73S/IvkE315owARNsQmLkEoQDiimtm8A==}
     dependencies:
       '@ocap/util': 1.18.34
       axios: 1.4.0
@@ -3761,11 +3764,11 @@ packages:
       - supports-color
     dev: false
 
-  /@nft-studio/react@0.1.20(@babel/core@7.22.9)(@emotion/css@11.11.2)(@iconify/iconify@2.2.1)(@types/react@18.2.17)(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)(yjs@13.6.7):
-    resolution: {integrity: sha512-aem5MXQA984oq6XTBRjTefEKtYxAOwtAdCEtanJytLQqRSq3+WmkGsGXKuPNjJ5PzSMqkMmiHOOAwtyPbvYVWQ==}
+  /@nft-studio/react@0.1.21(@babel/core@7.22.9)(@emotion/css@11.11.2)(@iconify/iconify@2.2.1)(@types/react@18.2.17)(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)(yjs@13.6.7):
+    resolution: {integrity: sha512-ohMccWgf5gVmVEuagADmi49MHMky1emg1v38HWFtHd+dU5GkCrygAH1igUjjBUpmgrp0Lhv1cC6pBms/if2dOw==}
     dependencies:
       '@arcblock/did-connect': 2.6.9(@babel/core@7.22.9)(@types/react@18.2.17)(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)
-      '@arcblock/erc721did-contract': 0.3.18
+      '@arcblock/erc721did-contract': 0.3.19
       '@arcblock/ux': 2.6.9(@babel/core@7.22.9)(@types/react@18.2.17)(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)
       '@blocklet/editor': 1.5.12(@babel/core@7.22.9)(@emotion/css@11.11.2)(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@iconify/iconify@2.2.1)(@mui/material@5.14.2)(@types/react@18.2.17)(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)(yjs@13.6.7)
       '@blocklet/tracker': 1.16.13
@@ -6046,7 +6049,7 @@ packages:
   /@walletconnect/window-metadata@1.0.0:
     resolution: {integrity: sha512-9eFvmJxIKCC3YWOL97SgRkKhlyGXkrHwamfechmqszbypFspaSk+t2jQXAEU7YClHF6Qjw5eYOmy1//zFi9/GA==}
     dependencies:
-      '@walletconnect/window-getters': 1.0.0
+      '@walletconnect/window-getters': 1.0.1
     dev: false
 
   /@walletconnect/window-metadata@1.0.1:
