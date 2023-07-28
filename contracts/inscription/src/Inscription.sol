@@ -11,7 +11,7 @@ pragma solidity ^0.8.19;
 // Powered by ArcBlock (https://github.com/blocklet/inscription)
 
 contract Inscription {
-  address private owner;
+  address public owner;
   uint256 private messageCount = 0;
   mapping(uint256 => string) private messages;
   event RecordedMessage(uint256 indexed index, string message);

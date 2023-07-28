@@ -10,8 +10,7 @@ const {
 const Inscription = require('@arcblock/inscription-contract/lib/Inscription.json');
 const Contract = require('../../db/contract');
 const logger = require('../../libs/logger');
-const { getOwnerDid } = require('../../libs/auth');
-const { getAuthPrincipal } = require('../../libs');
+const { getAuthPrincipal, getContractMessageByReceipt } = require('../../libs');
 
 module.exports = {
   action: 'deploy-contract',
@@ -24,15 +23,10 @@ module.exports = {
         const { chainId, message } = extraParams;
 
         const isETHWalletType = isEthereumDid(userDid);
-        const ownerDid = await getOwnerDid();
 
-        logger.info({ isETHWalletType, chainId, message, ownerDid });
+        logger.info({ isETHWalletType, chainId, message });
 
         if (isETHWalletType) {
-          // if (userDid !== ownerDid) {
-          //   throw new Error('Only blocklet owner can deploy contract');
-          // }
-
           const provider = await getProvider(chainId);
           const contractFactory = await createContractFactory({
             abi: Inscription.abi,
@@ -54,7 +48,7 @@ module.exports = {
           });
 
           return {
-            description: 'Please sign the transaction to deploy smart contract',
+            description: 'Please sign the transaction to deploy contract',
             type: 'eth:transaction',
             data: txData,
           };
@@ -93,23 +87,21 @@ module.exports = {
             const index = args[0]?.toString();
             const message = args[1]?.toString();
 
+            receipt.parseLog = parseLog;
+
             logger.info('deploy contract tx receipt:', {
               receipt,
-              parseLog,
               contractAddress,
-              result: {
-                index,
-                message,
-              },
             });
 
             // save contract address
-            const chainItem = await Contract.insert({
+            const contractItem = await Contract.insert({
               _id: chainId,
               contractAddress,
+              messageList: [getContractMessageByReceipt({ receipt, index, message })],
             });
 
-            logger.info('chain.db.create', chainItem);
+            logger.info('contract.db.create', contractItem);
           })
           .catch((err) => logger.error('deploy contract tx error:', { error: err }));
       }

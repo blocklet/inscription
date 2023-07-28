@@ -8,9 +8,9 @@ const {
   getProvider,
 } = require('@arcblock/inscription-contract/contract');
 const Inscription = require('@arcblock/inscription-contract/lib/Inscription.json');
+const Contract = require('../../db/contract');
 const logger = require('../../libs/logger');
-const { getOwnerDid } = require('../../libs/auth');
-const { getAuthPrincipal } = require('../../libs');
+const { getAuthPrincipal, getContractMessageByReceipt } = require('../../libs');
 
 module.exports = {
   action: 'record-message',
@@ -21,18 +21,20 @@ module.exports = {
     {
       signature: async ({ userDid, extraParams }) => {
         const { chainId, message, contractAddress } = extraParams;
-        const isETHWalletType = isEthereumDid(userDid);
-        const ownerDid = await getOwnerDid();
 
-        logger.info({ isETHWalletType, chainId, message, ownerDid });
+        const isETHWalletType = isEthereumDid(userDid);
+
+        logger.info({ isETHWalletType, chainId, message });
 
         if (isETHWalletType) {
-          // if (userDid !== ownerDid) {
-          //   throw new Error('Only owner can record message');
-          // }
-
           const provider = await getProvider(chainId);
           const contract = new ethers.Contract(contractAddress, Inscription.abi, provider);
+
+          const contractOwner = await contract?.owner?.();
+
+          if (contractOwner && userDid !== contractOwner) {
+            throw new Error('Only contract owner can record message');
+          }
 
           const contractFactory = await createContractFactory({
             abi: Inscription.abi,
@@ -55,7 +57,7 @@ module.exports = {
           });
 
           return {
-            description: 'Please sign the transaction to record message',
+            description: `Please sign the transaction to record message: ${message}`,
             type: 'eth:transaction',
             data: txData,
           };
@@ -67,7 +69,7 @@ module.exports = {
   ],
 
   onAuth: async ({ userDid, userPk, claims, updateSession, extraParams }) => {
-    const { chainId } = extraParams;
+    const { chainId, contractAddress } = extraParams;
     const type = toTypeInfo(userDid);
     const wallet = fromPublicKey(userPk, type);
     const claim = claims.find((x) => x.type === 'signature');
@@ -83,28 +85,40 @@ module.exports = {
         await updateSession({
           txHash: hash,
         });
+        const contract = new ethers.Contract(contractAddress, Inscription.abi, provider);
 
         // FIXME: txHash may be speeding up by DID Wallet, so we need to wait for the real tx
         waitForTxReceipt({ txHash: hash, provider })
           .then(async (receipt) => {
-            const { logs, contractAddress } = receipt;
-            const contract = new ethers.Contract(contractAddress, Inscription.abi, provider);
+            const { logs } = receipt;
             const parseLog = logs.map((log) => contract.interface.parseLog(log));
             const { args = [] } = parseLog?.find((item) => item.name === 'RecordedMessage') || {};
             const index = args[0]?.toString();
             const message = args[1]?.toString();
+            receipt.parseLog = parseLog;
 
-            logger.info('deploy contract tx receipt:', {
+            logger.info('record message tx receipt:', {
               receipt,
-              parseLog,
               contractAddress,
-              result: {
-                index,
-                message,
-              },
             });
+
+            const [, updateItem] = await Contract.update(
+              {
+                contractAddress,
+              },
+              {
+                $push: {
+                  messageList: getContractMessageByReceipt({ receipt, index, message }),
+                },
+              },
+              {
+                returnUpdatedDocs: true,
+              }
+            );
+
+            logger.info('contract.db.update', updateItem);
           })
-          .catch((err) => logger.error('deploy contract tx error:', { error: err }));
+          .catch((err) => logger.error('record message tx error:', { error: err }));
       }
 
       return {

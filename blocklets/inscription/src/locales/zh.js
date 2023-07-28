@@ -8,8 +8,8 @@ export default flat({
   },
   create: {
     auth: {
-      title: '确认创建智能合约',
-      scan: '使用您的 DID Wallet 扫描下面的二维码以完成创建',
+      title: '确认部署智能合约',
+      scan: '使用您的 DID Wallet 扫描下面的二维码以完成部署',
       confirm: '使用 DID Wallet 确认',
       success: '成功',
     },

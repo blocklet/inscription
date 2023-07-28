@@ -17,6 +17,7 @@ import { ETHWallet, LottieAnimation } from '@nft-studio/react';
 import AuthDialog from '../components/auth-dialog';
 import QuoteComponent from '../components/quote-component';
 import { useEnv } from '../contexts/use-env';
+import { getExplorerUrl, formatTime } from '../libs';
 import theme from '../libs/theme';
 import api from '../libs/api';
 import sending1 from '../assets/lottie/sending-1.json';
@@ -87,16 +88,37 @@ function Home() {
     return envMap?.chainList?.find((item) => item.chainId === state.chainId);
   };
 
-  const openAuthDialog = () => {
+  const openAuthDialog = async () => {
     const { contractAddress } = getCurrentChain();
     const deployed = !!contractAddress;
     const i18nKey = deployed ? 'record' : 'create';
+    const defaultParams = {
+      message: state.newMessage,
+      chainId: state.chainId,
+      contractAddress,
+    };
+    let extraParams = {};
+
+    // deploy-contract should use nw to check if it's blocklet owner
+    if (!deployed) {
+      const nextUrl = new URL(window.location.href);
+      // pathname is deploy-contract
+      nextUrl.pathname = joinUrl(window?.env?.apiPrefix ?? '/', '/api/did/deploy-contract/token');
+      // map defaultParams to query
+      Object.keys(defaultParams).forEach((key) => {
+        nextUrl.searchParams.append(key, defaultParams[key]);
+      });
+      const { data } = await api.get(nextUrl.href);
+      extraParams = {
+        nw: data.url,
+      };
+    }
+
     authRef.current.open({
-      action: deployed ? 'record-message' : 'deploy-contract',
+      action: deployed ? 'record-message' : 'verify-blocklet-owner',
       params: {
-        message: state.newMessage,
-        chainId: state.chainId,
-        contractAddress,
+        ...defaultParams,
+        ...extraParams,
       },
       messages: {
         title: t(`${i18nKey}.auth.title`),
@@ -105,7 +127,14 @@ function Home() {
         success: t(`${i18nKey}.auth.success`),
       },
       onSuccessAuth: async (res) => {
-        const { txHash } = res;
+        let txHash;
+        if (!deployed) {
+          // second element has txHash, because it is nw
+          txHash = res?.[1]?.txHash;
+        } else {
+          txHash = res.txHash;
+        }
+
         const provider = await getProvider(state.chainId);
 
         try {
@@ -149,17 +178,30 @@ function Home() {
     if (state.messages.length === 0) {
       return <Empty>{t('common.noDataTip')}</Empty>;
     }
-    return state.messages.map((item, index) => (
-      // eslint-disable-next-line react/no-array-index-key
-      <QuoteComponent key={index} className="m-0.5 mb-4">
-        {item.message}
-      </QuoteComponent>
-    ));
+    return state.messages.map((item, index) => {
+      const { createdAt, transactionHash } = item;
+      const { explorer } = getCurrentChain();
+      const explorerUrl = getExplorerUrl({ explorer, value: transactionHash, type: 'tx' });
+      return (
+        <QuoteComponent
+          // eslint-disable-next-line react/no-array-index-key
+          key={index}
+          {...item}
+          explorerUrl={explorerUrl}
+          createdAt={formatTime(createdAt)}
+          className="m-0.5 mb-4 !p-0"
+          sx={{
+            borderLeft: `2px solid ${theme.palette.primary.main}}`,
+          }}>
+          {item.message}
+        </QuoteComponent>
+      );
+    });
   };
 
   const getChainRenderItem = (item, { withDIDAddress = false } = {}) => {
     const { chainId, chainName, isTest, IconAvatar, contractAddress, explorer = '' } = item;
-    const explorerUrl = explorer && contractAddress && joinUrl(explorer, 'address', contractAddress);
+    const explorerUrl = getExplorerUrl({ explorer, value: contractAddress, type: 'address' });
     return [
       <div
         key="item"

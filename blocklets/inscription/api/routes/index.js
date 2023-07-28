@@ -18,7 +18,7 @@ router.get('/message/:chainId', middleware.user(), async (req, res) => {
   //   _id: chainId,
   // });
 
-  const { contractAddress } =
+  const { contractAddress, messageList } =
     (await Contract.findOne({
       _id: req.params.chainId,
     })) || {};
@@ -32,13 +32,17 @@ router.get('/message/:chainId', middleware.user(), async (req, res) => {
 
   const contract = new ethers.Contract(contractAddress, Inscription.abi, provider);
 
+  // from chain
   const allMessage = await contract.getAllMessage();
+
+  const messageMap = keyBy(messageList, 'index');
 
   const result = reverse(
     allMessage.map((item, index) => {
       return {
+        ...messageMap[index], // from 0
         message: item,
-        index,
+        index: `#${index + 1}`, // ux from 1
       };
     })
   );

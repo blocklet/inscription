@@ -8,7 +8,10 @@ const { Auth } = require('@blocklet/sdk');
 const env = require('./env');
 
 const authClient = new Auth();
-const getOwnerDid = () => authClient.getOwner().then((res) => res?.user?.did);
+const getOwnerDid = () =>
+  authClient.getOwner().then((res) => {
+    return res?.user?.did;
+  });
 
 const client = new GraphQLClient(env.chainHost);
 

@@ -8,8 +8,8 @@ export default flat({
   },
   create: {
     auth: {
-      title: 'Confirm To Create Smart Contract',
-      scan: 'Use your DID Wallet to scan the QR code below to complete the creation',
+      title: 'Confirm To Deploy Smart Contract',
+      scan: 'Use your DID Wallet to scan the QR code below to complete the deploy',
       confirm: 'Use your DID Wallet to confirm',
       success: 'Success',
     },

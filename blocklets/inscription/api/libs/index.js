@@ -1,5 +1,17 @@
+const pick = require('lodash/pick');
+
+const getContractMessageByReceipt = ({ receipt, ...rest }) => {
+  return {
+    ...pick(receipt, ['blockHash', 'transactionHash', 'blockNumber']),
+    ...rest,
+    effectiveGasPrice: receipt?.effectiveGasPrice?.toString(),
+    createdAt: new Date().toISOString(),
+  };
+};
+
 const getAuthPrincipal = async ({ extraParams }) => {
   const { chainId } = extraParams;
+
   if (chainId) {
     return {
       chainInfo: {
@@ -21,4 +33,5 @@ const getAuthPrincipal = async ({ extraParams }) => {
 
 module.exports = {
   getAuthPrincipal,
+  getContractMessageByReceipt,
 };

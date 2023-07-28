@@ -25,8 +25,7 @@ module.exports = async function main(runtime) {
     args: ['First Message'],
     log: true,
   });
-  // 拿到的合约地址 0x1560D685b671ED97595f39a88E978bf7D3793451
-  // npx hardhat verify --network base-mainnet 0x1560D685b671ED97595f39a88E978bf7D3793451 "0x6D4733bBE176FAd22e9E8D069BA34781F792D9aF"
+
   console.warn('Inscription deployed at: ', contract.address);
 };
 

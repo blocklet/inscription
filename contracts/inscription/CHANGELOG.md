@@ -1,3 +1,7 @@
+## 0.0.5 (July 28, 2023)
+
+- chore: support auth by DID Wallet
+
 ## 0.0.4 (July 28, 2023)
 
 - chore: adjust did system

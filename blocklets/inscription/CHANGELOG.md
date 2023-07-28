@@ -1,3 +1,7 @@
+## 0.0.7 (July 28, 2023)
+
+- chore: support auth by DID Wallet
+
 ## 0.0.6 (July 28, 2023)
 
 - chore: adjust github actions
