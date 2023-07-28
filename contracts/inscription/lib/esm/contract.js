@@ -527,12 +527,28 @@ async function verifyContract({ chainId, apiKey, contractAddress, ...restParams 
     apikey: apiKey,
   };
 
-  const result = await api.post(verifyUrl, qs.stringify(allParams), {
+  const { data: verifyResult } = await api.post(verifyUrl, qs.stringify(allParams), {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
   });
-  return result;
+
+  const { data: checkResult } = await api.get(verifyUrl, {
+    params: {
+      module: 'contract',
+      action: 'getsourcecode',
+      address: contractAddress,
+      apikey: apiKey,
+    },
+  });
+
+  const verified = !!checkResult?.result?.[0]?.SourceCode;
+
+  return {
+    verifyResult,
+    checkResult,
+    verified,
+  };
 }
 
 var ethers_1 = contract$1.ethers = ethers;

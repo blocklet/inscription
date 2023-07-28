@@ -14,6 +14,7 @@ import {
   FormHelperText,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useReactive, useRequest } from 'ahooks';
 // eslint-disable-next-line import/no-unresolved
 import { getProvider, waitForTxReceipt, waitFor, ethers } from '@arcblock/inscription-contract/contract';
@@ -347,6 +348,8 @@ function Home() {
     }
   };
 
+  const { contractAddress, verified = false } = getCurrentChain() || {};
+
   return (
     <div className={classes.container}>
       <div className={classes.header}>
@@ -384,10 +387,25 @@ function Home() {
             );
           })}
         </Select>
-        {getCurrentChain()?.contractAddress && (
+        {contractAddress && (
           <Button
+            disabled={verified}
             className="mt-1"
             size="small"
+            sx={
+              verified && {
+                color: '#5bb35f !important',
+              }
+            }
+            startIcon={
+              verified && (
+                <CheckCircleIcon
+                  sx={{
+                    color: '#5bb35f',
+                  }}
+                />
+              )
+            }
             onClick={async () => {
               confirmDialogRef.current.open({
                 title: t('common.verifyContract'),
@@ -402,6 +420,7 @@ function Home() {
                         sx={{
                           textSecurity: 'unset',
                         }}
+                        autoComplete="off"
                         value={state.apiKey}
                         onChange={(e) => {
                           state.verifyContractError = '';
@@ -429,11 +448,14 @@ function Home() {
                     chainId: state.chainId,
                     apiKey: state.apiKey,
                   });
-                  if (data?.status === '1') {
+                  if (data?.verified) {
                     confirmDialogRef.current.close();
                     state.apiKey = '';
+                    refreshEnv();
                   } else {
-                    state.verifyContractError = data?.result || data?.message || t('common.unknownError');
+                    const { verifyResult } = data;
+                    state.verifyContractError =
+                      verifyResult?.result || verifyResult?.message || t('common.unknownError');
                     throw new Error(state.verifyContractError);
                   }
                 },
@@ -481,6 +503,7 @@ function Home() {
           className={classes.inputField}
           variant="outlined"
           value={state.inputValue}
+          autoComplete="off"
           onChange={(e) => {
             state.inputValue = e.target.value;
           }}

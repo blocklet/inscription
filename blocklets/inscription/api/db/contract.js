@@ -5,6 +5,7 @@ const cloneDeep = require('lodash/cloneDeep');
  * Data structure
  * - _id: string, the chain id
  * - contractAddress: string, the contract address
+ * - verified: boolean, is contract verified
  */
 
 class Contract extends Database {

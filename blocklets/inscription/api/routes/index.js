@@ -29,17 +29,30 @@ router.post('/verify-contract', middleware.user(), async (req, res) => {
   }
 
   const constructorTypes = ['string'];
-  const constructorParams = [messageList[0].message || ''];
+  const constructorParams = [`${messageList[0].message || ''}`];
 
   // encode constructor arguements
   const constructorArguements = ethers.utils.defaultAbiCoder.encode(constructorTypes, constructorParams);
 
-  const { data } = await verifyContract({
+  const data = await verifyContract({
     chainId,
     apiKey,
     contractAddress,
     constructorArguements: constructorArguements.replace('0x', ''), // must remove 0x
   });
+
+  if (data.verified) {
+    await Contract.update(
+      {
+        _id: chainId,
+      },
+      {
+        $set: {
+          verified: true,
+        },
+      }
+    );
+  }
 
   res.json(data);
 });
