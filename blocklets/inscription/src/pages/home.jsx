@@ -283,7 +283,7 @@ function Home() {
               }
         }>
         <div className="flex items-center mr-1">
-          <IconAvatar />
+          <IconAvatar key={chainId} />
           <span className="ml-2 ">{chainName}</span>
           {isTest && (
             <StyledBadge className="!mb-0 !ml-2" fontSize="small">
@@ -300,9 +300,10 @@ function Home() {
             }}>
             <DidAddress
               key="address"
-              className="  mr-0.5"
+              className="mr-0.5"
               style={{
                 textAlign: isMobile ? 'left' : 'right',
+                lineHeight: '24px',
               }}
               prepend={<DidAvatar className="mr-2" did={contractAddress} size={24} />}>
               {contractAddress}

@@ -1,3 +1,7 @@
+## 0.0.15 (July 31, 2023)
+
+- chore: remove useless deps
+
 ## 0.0.14 (July 29, 2023)
 
 - fix: resolve the bug of screenshots error in blocklet store

@@ -1,3 +1,7 @@
+## 0.0.10 (July 31, 2023)
+
+- chore: remove useless deps
+
 ## 0.0.9 (July 29, 2023)
 
 - chore: update contract verified ux
