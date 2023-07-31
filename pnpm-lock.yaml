@@ -168,8 +168,8 @@ importers:
         specifier: 3.1.8
         version: 3.1.8
       vite-plugin-blocklet:
-        specifier: 0.6.6
-        version: 0.6.6(vite@3.1.8)
+        specifier: ^0.6.10
+        version: 0.6.10(vite@3.1.8)
       vite-plugin-html:
         specifier: ^3.2.0
         version: 3.2.0(vite@3.1.8)
@@ -19285,8 +19285,8 @@ packages:
     resolution: {integrity: sha512-XuQlSNcGYzIX25DK6tUfblQNJPBCmMUDrk74F1PHm4ELdK8gDHXPcE5/unNmW0azHlOLQyWoEeCNvGpGnkvZPg==}
     dev: false
 
-  /vite-plugin-blocklet@0.6.6(vite@3.1.8):
-    resolution: {integrity: sha512-ylCA8rkmcaEEEFosKuzrpc2255mZ3/YVJT34WEuh4BS3i50j0PEF2/EaohF/CY5wgg3DRZfs2Eh3p1IAtBo3ow==}
+  /vite-plugin-blocklet@0.6.10(vite@3.1.8):
+    resolution: {integrity: sha512-05Ba6y7qP2Q2SYAuKe6waFkRm1Kp4l4lIsQVgVmOeHx5gy0ATa0GK8jWr/nCX0Izw0uZNUNucRUcIwT3MFxBkg==}
     peerDependencies:
       vite: '>=2'
     dependencies:
