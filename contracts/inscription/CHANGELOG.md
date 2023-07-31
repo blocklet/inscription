@@ -1,3 +1,7 @@
+## 0.0.11 (July 31, 2023)
+
+- chore: update deps
+
 ## 0.0.10 (July 31, 2023)
 
 - chore: remove useless deps
