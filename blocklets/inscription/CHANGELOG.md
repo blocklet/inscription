@@ -1,3 +1,7 @@
+## 0.0.17 (July 31, 2023)
+
+- chore: revert deps
+
 ## 0.0.16 (July 31, 2023)
 
 - chore: update deps
@@ -56,7 +60,7 @@
 
 ## 0.0.2 (July 27, 2023)
 
-- fix: replace logo 
+- fix: replace logo
 
 ## 0.0.1 (July 27, 2023)
 
