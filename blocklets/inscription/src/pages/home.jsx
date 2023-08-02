@@ -169,7 +169,7 @@ function Home() {
     if (!deployed) {
       const nextUrl = new URL(window.location.href);
       // pathname is deploy-contract
-      nextUrl.pathname = joinUrl(window?.env?.apiPrefix ?? '/', '/api/did/deploy-contract/token');
+      nextUrl.pathname = joinUrl(window?.blocklet?.prefix ?? '/', '/api/did/deploy-contract/token');
       // map defaultParams to query
       Object.keys(defaultParams).forEach((key) => {
         nextUrl.searchParams.append(key, defaultParams[key]);
@@ -182,6 +182,7 @@ function Home() {
 
     authRef.current.open({
       action: deployed ? 'record-message' : 'verify-blocklet-owner',
+      checkFn: api.get,
       params: {
         ...defaultParams,
         ...extraParams,

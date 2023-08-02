@@ -1,3 +1,7 @@
+## 0.0.18 (August 02, 2023)
+
+- fix: resolve the bug of api prefix
+
 ## 0.0.17 (July 31, 2023)
 
 - chore: revert deps
