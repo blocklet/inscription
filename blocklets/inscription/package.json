@@ -1,6 +1,6 @@
 {
   "name": "inscription",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "private": true,
   "scripts": {
     "dev": "COMPONENT_STORE_URL=https://test.store.blocklet.dev blocklet dev",

@@ -165,13 +165,13 @@ function Home() {
       playAnimation();
       authRef.current.close();
 
-      // only wait for tx receipt when contract is not deployed
-      if (!deployed) {
-        // eslint-disable-next-line no-underscore-dangle
-        await waitForTxReceipt({
-          provider,
-          txHash,
-        }).then(async () => {
+      // eslint-disable-next-line no-underscore-dangle
+      await waitForTxReceipt({
+        provider,
+        txHash,
+      }).then(async () => {
+        // only wait for tx receipt when contract is not deployed
+        if (!deployed) {
           await waitFor(
             async () => {
               const newEnvMap = await refreshEnv();
@@ -184,8 +184,8 @@ function Home() {
             },
             { interval: 5000, timeout: 30 * 60 * 1000 }
           );
-        });
-      }
+        }
+      });
     } catch (error) {
       console.error(error);
       showSnackbar(error?.reason || error?.message || t('common.unknownError'), {
@@ -314,6 +314,7 @@ function Home() {
             </DidAddress>
 
             <IconButton
+              disabled={isLoading}
               size="small"
               href={explorerUrl}
               target="_blank"
@@ -423,7 +424,7 @@ function Home() {
                 title: t('common.verifyContract'),
                 context: () => (
                   <div>
-                    <FormControl sx={{ mt: 1, width: '100%' }} variant="outlined">
+                    <FormControl sx={{ mt: 1, width: '100%', background: '#fff' }} variant="outlined">
                       <InputLabel>{t('common.apiKey')}</InputLabel>
                       <OutlinedInput
                         id="outlined-adornment-password"
@@ -489,7 +490,6 @@ function Home() {
       <div
         className={classes.messages}
         style={{
-          minHeight: '400px',
           ...(isLoading && {
             alignItems: 'center',
             justifyContent: 'center',
@@ -521,6 +521,9 @@ function Home() {
           variant="outlined"
           value={state.inputValue}
           autoComplete="off"
+          sx={{
+            background: '#fff',
+          }}
           onChange={(e) => {
             state.inputValue = e.target.value;
           }}
@@ -575,7 +578,7 @@ const useStyles = makeStyles(() => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    height: 'calc(100vh - 64px - 92px)',
+    height: 'calc(100vh - 64px - 92px - 16px)',
     justifyContent: 'center',
   },
   header: {

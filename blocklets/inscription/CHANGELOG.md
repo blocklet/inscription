@@ -1,3 +1,7 @@
+## 0.0.20 (August 02, 2023)
+
+- fix: resolve the ux bug
+
 ## 0.0.19 (August 02, 2023)
 
 - feat: support record message by other wallet
