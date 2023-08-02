@@ -2,10 +2,10 @@ const middleware = require('@blocklet/sdk/lib/middlewares');
 const router = require('express').Router();
 const reverse = require('lodash/reverse');
 const keyBy = require('lodash/keyBy');
-const { getEvmChainList, getProvider, ethers, verifyContract } = require('@arcblock/inscription-contract/contract');
+const { getEvmChainList, getProvider, ethers } = require('@arcblock/inscription-contract/contract');
 const Inscription = require('@arcblock/inscription-contract/lib/Inscription.json');
 const env = require('../libs/env');
-
+const { verifyContractAndRecordDB } = require('../libs');
 const Contract = require('../db/contract');
 
 router.post('/verify-contract', middleware.user(), async (req, res) => {
@@ -34,25 +34,12 @@ router.post('/verify-contract', middleware.user(), async (req, res) => {
   // encode constructor arguements
   const constructorArguements = ethers.utils.defaultAbiCoder.encode(constructorTypes, constructorParams);
 
-  const data = await verifyContract({
+  const data = await verifyContractAndRecordDB({
     chainId,
     apiKey,
     contractAddress,
     constructorArguements: constructorArguements.replace('0x', ''), // must remove 0x
   });
-
-  if (data.verified) {
-    await Contract.update(
-      {
-        _id: chainId,
-      },
-      {
-        $set: {
-          verified: true,
-        },
-      }
-    );
-  }
 
   res.json(data);
 });

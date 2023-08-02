@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { useSnackbar } from 'notistack';
 import { useReactive, useRequest } from 'ahooks';
 // eslint-disable-next-line import/no-unresolved
 import { getProvider, waitForTxReceipt, waitFor, ethers } from '@arcblock/inscription-contract/contract';
@@ -54,6 +55,10 @@ const checkIsETHWalletType = (chainId) => {
 };
 
 function Home() {
+  const { enqueueSnackbar } = useSnackbar();
+  const showSnackbar = (msg, { variant = 'info' } = {}) => {
+    enqueueSnackbar(msg, { variant });
+  };
   const confirmDialogRef = useRef(null);
   const ethWalletRef = useRef(null);
   const authRef = useRef(null);
@@ -83,7 +88,7 @@ function Home() {
   const playAnimation = () => {
     setTimeout(() => {
       lottieAnimationRef.current?.safePlay();
-    }, 200);
+    }, 100);
   };
 
   const getAllMessage = useCallback(async () => {
@@ -94,6 +99,7 @@ function Home() {
     const { data } = await api.get(`/api/message/${queryChainId}`);
     // ensure the chainId is not changed
     if (queryChainId === state.chainId) {
+      // get next random animation data
       state.animationData = getRandomAnimationData('loading');
       lottieAnimationRef.current?.pause();
       state.messages = data;
@@ -125,32 +131,73 @@ function Home() {
 
     // eslint-disable-next-line no-unused-vars
     const signer = provider.getSigner();
+    const message = state.inputValue;
+    const contract = new ethers.Contract(contractAddress, Inscription.abi, signer);
+    try {
+      const receipt = await contract.recordMessage(message);
+      // adjust DID Wallet Auth
+      await onSuccessAuth({ txHash: receipt.hash });
+      await receipt.wait();
+    } catch (error) {
+      console.error(error);
+      showSnackbar(error?.reason || error?.message || t('common.unknownError'), {
+        variant: 'error',
+      });
+    }
+  };
+
+  const onSuccessAuth = async (res) => {
     const { contractAddress } = getCurrentChain();
     const deployed = !!contractAddress;
-
-    // deploy-contract should use nw to check if it's blocklet owner
+    let txHash;
     if (!deployed) {
-      confirmDialogRef.current.open({
-        title: t('common.useDIDWallet'),
-        context: t('create.mustUseDIDWalletTip'),
-        onConfirm: async () => {
-          await openAuthDialog();
-        },
-        onCancel: () => {
-          window.history.back();
-        },
-        confirmColor: 'primary',
-      });
+      // second element has txHash, because it is nw
+      txHash = res?.[1]?.txHash;
     } else {
-      await openAuthDialog();
-      // const contract = new ethers.Contract(contractAddress, Inscription.abi, signer);
-      // try {
-      //   const estimateGas = await contract.estimateGas.recordMessage(state.newMessage);
-      //   const gasLimit = Math.ceil(estimateGas.toNumber() * 1.5);
-      // } catch (error) {
-      //   console.error(error.message);
-      // }
+      txHash = res.txHash;
     }
+
+    const provider = await getProvider(state.chainId);
+
+    try {
+      state.inputValue = '';
+      state.loading = true;
+      playAnimation();
+      authRef.current.close();
+
+      // only wait for tx receipt when contract is not deployed
+      if (!deployed) {
+        // eslint-disable-next-line no-underscore-dangle
+        await waitForTxReceipt({
+          provider,
+          txHash,
+        }).then(async () => {
+          await waitFor(
+            async () => {
+              const newEnvMap = await refreshEnv();
+              const { contractAddress: newContractAddress } =
+                newEnvMap?.chainList.find((item) => item.chainId === state.chainId) || {};
+              if (newContractAddress) {
+                return true;
+              }
+              return false;
+            },
+            { interval: 5000, timeout: 30 * 60 * 1000 }
+          );
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      showSnackbar(error?.reason || error?.message || t('common.unknownError'), {
+        variant: 'error',
+      });
+    } finally {
+      state.loading = false;
+      lottieAnimationRef.current?.pause();
+    }
+
+    state.animationData = getRandomAnimationData('loading');
+    await refreshAsync();
   };
 
   // use DID Wallet Auth
@@ -193,51 +240,7 @@ function Home() {
         confirm: t(`${i18nKey}.auth.confirm`),
         success: t(`${i18nKey}.auth.success`),
       },
-      onSuccessAuth: async (res) => {
-        let txHash;
-        if (!deployed) {
-          // second element has txHash, because it is nw
-          txHash = res?.[1]?.txHash;
-        } else {
-          txHash = res.txHash;
-        }
-
-        const provider = await getProvider(state.chainId);
-
-        try {
-          state.inputValue = '';
-          state.loading = true;
-          state.animationData = getRandomAnimationData('sending');
-          playAnimation();
-          authRef.current.close();
-          // eslint-disable-next-line no-underscore-dangle
-          await waitForTxReceipt({
-            provider,
-            txHash,
-          }).then(async () => {
-            await waitFor(
-              async () => {
-                const newEnvMap = await refreshEnv();
-                const { contractAddress: newContractAddress } =
-                  newEnvMap?.chainList.find((item) => item.chainId === state.chainId) || {};
-                if (newContractAddress) {
-                  return true;
-                }
-                return false;
-              },
-              { interval: 2000, timeout: 30 * 60 * 1000 }
-            );
-          });
-        } catch (error) {
-          console.error(error);
-        } finally {
-          state.loading = false;
-          state.animationData = getRandomAnimationData('loading');
-          lottieAnimationRef.current?.pause();
-        }
-
-        await refreshAsync();
-      },
+      onSuccessAuth,
     });
   };
 
@@ -334,19 +337,26 @@ function Home() {
   const handleSendMessage = async () => {
     if (isDisabled) return;
     if (`${`${state.inputValue}`}`?.trim?.()?.length > 0) {
+      state.animationData = getRandomAnimationData('sending');
       state.newMessage = state.inputValue;
 
-      // FIXME: only use DID Wallet
-      await openAuthDialog();
+      const { contractAddress } = getCurrentChain();
+      const deployed = !!contractAddress;
 
-      // const wallet = ethWalletRef.current?.getWallet();
+      // not deploy contract, should use DID Wallet
+      if (!deployed) {
+        await openAuthDialog();
+        return;
+      }
 
-      // if (!wallet) {
-      //   const connectedList = await ethWalletRef.current?.open?.();
-      //   if (!connectedList?.length) return; // use DID Wallet, trigger wallet Module onclick
-      // }
+      const wallet = ethWalletRef.current?.getWallet();
 
-      // await openAuthDialogOtherWallet();
+      if (!wallet) {
+        const connectedList = await ethWalletRef.current?.open?.();
+        if (!connectedList?.length) return; // use DID Wallet, trigger wallet Module onclick
+      }
+
+      await openAuthDialogOtherWallet();
     }
   };
 
@@ -446,6 +456,10 @@ function Home() {
                   </div>
                 ),
                 onConfirm: async () => {
+                  if (!state.apiKey) {
+                    state.verifyContractError = t('common.apiKeyNotEmptyTip');
+                    throw new Error(state.verifyContractError);
+                  }
                   const { data } = await api.post('/api/verify-contract', {
                     chainId: state.chainId,
                     apiKey: state.apiKey,
@@ -480,7 +494,7 @@ function Home() {
             alignItems: 'center',
             justifyContent: 'center',
             display: 'flex',
-            overflowY: 'hidden',
+            overflow: 'hidden',
           }),
         }}>
         {isLoading ? (
@@ -489,6 +503,7 @@ function Home() {
               minHeight: '400px',
               height: '50vh',
               width: isMobile ? '100%' : '60vw',
+              overflow: 'hidden',
               transform: state.loading ? 'scale(1.4)' : '', // sending animation is small, so scale it
             }}
             loop
@@ -537,7 +552,7 @@ function Home() {
             onClick: openAuthDialog,
           };
         }}
-        filterWallet={(walletList) => [walletList[0]]} // only use DID Wallet
+        // filterWallet={(walletList) => [walletList[0]]} // only use DID Wallet
       />
       <AuthDialog ref={authRef} popup />
 
@@ -560,7 +575,7 @@ const useStyles = makeStyles(() => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    height: '100%',
+    height: 'calc(100vh - 64px - 92px)',
     justifyContent: 'center',
   },
   header: {

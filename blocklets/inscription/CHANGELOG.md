@@ -1,3 +1,7 @@
+## 0.0.19 (August 02, 2023)
+
+- feat: support record message by other wallet
+
 ## 0.0.18 (August 02, 2023)
 
 - fix: resolve the bug of api prefix

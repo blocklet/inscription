@@ -10,8 +10,9 @@ export default flat({
     cancel: 'Cancel',
     confirm: 'Confirm',
     apiKey: 'API Key',
+    apiKeyNotEmptyTip: 'API Key is required',
     apiKeyTip:
-      'You need to use API Key to verify the contract<br/>You can get your exclusive API Key at <a href="{explorer}" style="color: {color};" target="_blank">{explorer}</a>',
+      '* If the contract has already been verified with similar code in the block explorer, there is no need to repeat the operation<br/>* Verifying the contract requires an API Key, which you can get from <a href="{explorer}" style="color: {color};" target="_blank">{explorer}</a>. Proprietary API Key',
     verifyContract: 'Verify Contract',
     unknownError: 'Unknown Error',
   },

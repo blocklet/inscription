@@ -10,8 +10,9 @@ export default flat({
     cancel: '取消',
     confirm: '确认',
     apiKey: 'API Key',
+    apiKeyNotEmptyTip: 'API Key 不能为空',
     apiKeyTip:
-      '需要使用 API Key 才能校验合约<br/>您可以到 <a href="{explorer}" style="color: {color};" target="_blank">{explorer}</a> 获取您的专属 API Key',
+      '* 如果在区块浏览器中，合约已通过相似代码校验，则无需重复操作<br/>* 校验合约需要使用 API Key，您可以到 <a href="{explorer}" style="color: {color};" target="_blank">{explorer}</a> 获取您的专属 API Key',
     verifyContract: '校验合约',
     unknownError: '未知错误',
   },

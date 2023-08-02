@@ -10,7 +10,7 @@ const {
 const Inscription = require('@arcblock/inscription-contract/lib/Inscription.json');
 const Contract = require('../../db/contract');
 const logger = require('../../libs/logger');
-const { getAuthPrincipal, getContractMessageByReceipt } = require('../../libs');
+const { getAuthPrincipal, getContractMessageByReceipt, verifyContractAndRecordDB } = require('../../libs');
 
 module.exports = {
   action: 'deploy-contract',
@@ -94,11 +94,32 @@ module.exports = {
               contractAddress,
             });
 
+            let verified = false;
+
+            try {
+              const constructorTypes = ['string'];
+              const constructorParams = [`${message || ''}`];
+
+              // encode constructor arguements
+              const constructorArguements = ethers.utils.defaultAbiCoder.encode(constructorTypes, constructorParams);
+              const verifyData = await verifyContractAndRecordDB({
+                chainId,
+                apiKey: 'A_MOCK_APIKEY_TO_TRY_TO_GET_VERIFY', // try to get same bytecode, that contract unnecessary to verify
+                contractAddress,
+                constructorArguements: constructorArguements.replace('0x', ''), // must remove 0x
+                updateDB: false,
+              });
+              verified = verifyData.verified;
+            } catch (error) {
+              logger.error('try to verify contract error:', error);
+            }
+
             // save contract address
             const contractItem = await Contract.insert({
               _id: chainId,
               contractAddress,
               messageList: [getContractMessageByReceipt({ receipt, index, message })],
+              verified,
             });
 
             logger.info('contract.db.create', contractItem);
