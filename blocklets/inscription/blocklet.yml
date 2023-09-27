@@ -1,5 +1,5 @@
 name: inscription
-version: 0.0.20
+version: 0.0.21
 title: Inscription
 description: A blocklet that lets you write inscriptions on chains.
 keywords:
@@ -9,8 +9,9 @@ group: dapp
 did: z8iZwU2jWphgpz5Uw2KsDmHyGQ1rUft8tc8G3
 main: api/index.js
 author:
-  name: Yongzhuo Liang
-  email: yongchao@arcblock.io
+  name: arcblock
+  email: blocklet@arcblock.io
+  url: https://github.com/blocklet
 repository:
   type: git
   url: git+https://github.com/blocklet/inscription.git
@@ -47,9 +48,9 @@ interfaces:
             - avatar
           allowSwitchProfile: true
           blockUnauthorized: false
-community: ""
-documentation: ""
-homepage: ""
+community: https://community.arcblock.io
+documentation: https://developer.blocklet.io
+homepage: https://store.blocklet.dev
 license: ""
 payment:
   price: []

@@ -1,3 +1,7 @@
+## 0.0.12 (九月 27, 2023)
+
+- chore: update author info
+
 ## 0.0.11 (July 31, 2023)
 
 - chore: update deps
