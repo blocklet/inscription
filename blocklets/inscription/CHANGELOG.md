@@ -1,3 +1,7 @@
+## 0.0.21 (九月 27, 2023)
+
+- chore: update author info
+
 ## 0.0.20 (August 02, 2023)
 
 - fix: resolve the ux bug
