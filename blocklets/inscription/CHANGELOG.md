@@ -1,3 +1,7 @@
+## 0.0.23 (December 23, 2023)
+
+- fix: polish vite version to 4.x to fix the bug of build
+
 ## 0.0.22 (December 23, 2023)
 
 - chore: update deps and vite config

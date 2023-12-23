@@ -20,10 +20,5 @@
     "prompts": "^2.4.2",
     "zx": "^7.2.3"
   },
-  "resolutions": {
-    "@abtnode/client": "1.16.14-beta-3127f514",
-    "@abtnode/constant": "1.16.14-beta-3127f514",
-    "@blocklet/constant": "1.16.14-beta-3127f514",
-    "@blocklet/sdk": "^1.16.14-beta-3127f514"
-  }
+  "resolutions": {}
 }
