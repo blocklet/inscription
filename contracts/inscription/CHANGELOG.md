@@ -1,3 +1,7 @@
+## 0.0.13 (December 23, 2023)
+
+- chore: update deps and vite config
+
 ## 0.0.12 (九月 27, 2023)
 
 - chore: update author info

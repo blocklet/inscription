@@ -36,7 +36,7 @@ export default defineConfig(async ({ mode }) => {
       }),
       WindiCSS(),
       svgr(),
-      mode === 'development' && openGraphPlugin(),
+      // mode === 'development' && openGraphPlugin(),
     ],
   };
 });
